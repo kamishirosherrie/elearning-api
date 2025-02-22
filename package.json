@@ -21,7 +21,8 @@
         "cors": "^2.8.5",
         "dotenv": "^16.4.7",
         "express": "^4.21.2",
-        "mongoose": "^8.10.1"
+        "mongoose": "^8.10.1",
+        "mongoose-slug-updater": "^3.3.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.22.10",

@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
         district: { type: String, required: false },
         ward: { type: String, required: false },
         roleId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Roles' },
+        isDisabled: { type: Boolean, required: true, default: false },
     },
     {
         timestamps: true,
