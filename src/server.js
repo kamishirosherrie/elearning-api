@@ -5,6 +5,7 @@ import cors from 'cors'
 import { env } from './config/environment'
 import { roleRouter } from './routes/roleRoutes'
 import { courseRouter } from './routes/courseRoutes'
+import { authRouter } from './routes/authRoutes'
 
 const START_SERVER = () => {
     const app = express()
@@ -29,6 +30,8 @@ const START_SERVER = () => {
     })
 
     app.use('/role', roleRouter)
+
+    app.use('/auth', authRouter)
 
     app.use('/course', courseRouter)
 }
