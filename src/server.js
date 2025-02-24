@@ -6,6 +6,7 @@ import { env } from './config/environment'
 import { roleRouter } from './routes/roleRoutes'
 import { courseRouter } from './routes/courseRoutes'
 import { authRouter } from './routes/authRoutes'
+import { userRouter } from './routes/userRoutes'
 
 const START_SERVER = () => {
     const app = express()
@@ -32,6 +33,8 @@ const START_SERVER = () => {
     app.use('/role', roleRouter)
 
     app.use('/auth', authRouter)
+
+    app.use('/user', userRouter)
 
     app.use('/course', courseRouter)
 }
