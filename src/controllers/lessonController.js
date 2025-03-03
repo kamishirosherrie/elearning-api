@@ -17,7 +17,29 @@ export const getAllLessons = async (req, res) => {
     }
 }
 
-// [GET LESSON BY ID]
+// [GET LESSON BY COURSE]
+export const getLessonByCourse = async (req, res) => {
+    try {
+        const course = await courseModel.findOne({ title: req.params.courseName })
+        if (!course) {
+            return res.status(400).json({
+                message: 'Course not found',
+            })
+        }
+
+        const lessons = await lessonModel.find({ courseId: course._id })
+        res.status(200).json({
+            message: 'Get lessons by course successfully',
+            lessons: lessons,
+            courseSlug: course.slug,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get lessons by course failed',
+            error: error.message,
+        })
+    }
+}
 
 // [INSERT LESSON]
 export const addNewLesson = async (req, res) => {

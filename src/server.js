@@ -8,6 +8,8 @@ import { courseRouter } from './routes/courseRoutes'
 import { authRouter } from './routes/authRoutes'
 import { userRouter } from './routes/userRoutes'
 import { lessonRouter } from './routes/lessonRoutes'
+import { quizzeRouter } from './routes/quizzeRoutes'
+import { questionRouter } from './routes/questionRoutes'
 
 const START_SERVER = () => {
     const app = express()
@@ -40,6 +42,10 @@ const START_SERVER = () => {
     app.use('/course', courseRouter)
 
     app.use('/lesson', lessonRouter)
+
+    app.use('/quizze', quizzeRouter)
+
+    app.use('/question', questionRouter)
 }
 
 ;(async () => {
