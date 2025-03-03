@@ -11,3 +11,5 @@ const submissionSchema = new mongoose.Schema(
         timestamps: true,
     },
 )
+
+export const submissionModel = mongoose.model('Submissions', submissionSchema, 'Submissions')

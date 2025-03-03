@@ -7,6 +7,7 @@ import { roleRouter } from './routes/roleRoutes'
 import { courseRouter } from './routes/courseRoutes'
 import { authRouter } from './routes/authRoutes'
 import { userRouter } from './routes/userRoutes'
+import { lessonRouter } from './routes/lessonRoutes'
 
 const START_SERVER = () => {
     const app = express()
@@ -37,6 +38,8 @@ const START_SERVER = () => {
     app.use('/user', userRouter)
 
     app.use('/course', courseRouter)
+
+    app.use('/lesson', lessonRouter)
 }
 
 ;(async () => {
