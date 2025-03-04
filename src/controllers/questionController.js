@@ -16,6 +16,33 @@ export const getAllQuestions = async (req, res) => {
     }
 }
 
+export const getQuestionByQuzzieSlug = async (req, res) => {
+    try {
+        const quizze = await quizzeModel.findOne({ slug: req.params.quizzeSlug })
+        if (!quizze) {
+            return res.status(400).json({
+                message: 'Quizze not found',
+            })
+        }
+        const questions = await questionModel.find({ quizzeId: quizze._id })
+        if (!questions) {
+            return res.status(400).json({
+                message: 'Questions not found',
+            })
+        }
+
+        res.status(200).json({
+            message: 'Get questions by quizze successfully',
+            questions,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get questions by quizze failed',
+            error: error.message,
+        })
+    }
+}
+
 export const addNewQuestion = async (req, res) => {
     try {
         const questionType = await questionTypeModel.findOne({ _id: req.body.questionTypeId })

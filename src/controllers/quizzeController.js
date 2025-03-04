@@ -1,6 +1,21 @@
 import { lessonModel } from '~/models/lessonModel'
 import { quizzeModel } from '~/models/quizzeModel'
 
+export const getAllQuizze = async (req, res) => {
+    try {
+        const quizzes = await quizzeModel.find()
+        res.status(200).json({
+            message: 'Get all quizzes successfully',
+            quizzes,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get all quizzes failed',
+            error: error.message,
+        })
+    }
+}
+
 export const getQuizzeByLesson = async (req, res) => {
     try {
         const lesson = await lessonModel.findOne({ slug: req.params.lessonSlug })

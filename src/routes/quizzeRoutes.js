@@ -1,8 +1,9 @@
 import express from 'express'
-import { addNewQuizze, getQuizzeByLesson } from '~/controllers/quizzeController'
+import { addNewQuizze, getAllQuizze, getQuizzeByLesson } from '~/controllers/quizzeController'
 
 const quizzeRouter = express.Router()
 
+quizzeRouter.get('/', getAllQuizze)
 quizzeRouter.get('/getQuizzeByLesson/:lessonSlug', getQuizzeByLesson)
 quizzeRouter.post('/addNewQuizze', addNewQuizze)
 
