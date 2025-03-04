@@ -1,7 +1,7 @@
 import { courseModel } from '~/models/courseModel'
 import { lessonModel } from '~/models/lessonModel'
 
-// [GET LESSONS]
+// [GET ALL LESSONS]
 export const getAllLessons = async (req, res) => {
     try {
         const lessons = await lessonModel.find()
@@ -17,10 +17,32 @@ export const getAllLessons = async (req, res) => {
     }
 }
 
-// [GET LESSON BY COURSE]
-export const getLessonByCourse = async (req, res) => {
+// [GET LESSON BY SLUG]
+export const getLessonBySlug = async (req, res) => {
     try {
-        const course = await courseModel.findOne({ title: req.params.courseName })
+        const lesson = await lessonModel.findOne({ slug: req.params.slug })
+        if (!lesson) {
+            return res.status(400).json({
+                message: 'Lesson not found',
+            })
+        }
+
+        res.status(200).json({
+            message: 'Get lesson successfully',
+            lesson,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get lesson failed',
+            error: error.message,
+        })
+    }
+}
+
+// [GET LESSON BY COURSE]
+export const getLessonByCourseSlug = async (req, res) => {
+    try {
+        const course = await courseModel.findOne({ slug: req.params.courseName })
         if (!course) {
             return res.status(400).json({
                 message: 'Course not found',

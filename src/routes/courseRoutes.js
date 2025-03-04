@@ -4,6 +4,7 @@ import {
     addNewCourse,
     deleteCourse,
     getCourseById,
+    getCourseBySlug,
     getCourseEnrollments,
     getCourses,
     updateCourse,
@@ -13,6 +14,7 @@ const courseRouter = express.Router()
 
 courseRouter.get('/', getCourses)
 courseRouter.get('/:id', getCourseById)
+courseRouter.get('/slug/:slug', getCourseBySlug)
 courseRouter.get('/enrollment', getCourseEnrollments)
 
 courseRouter.post('/addCourse', addNewCourse)

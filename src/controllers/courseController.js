@@ -17,6 +17,26 @@ export const getCourses = async (req, res) => {
     }
 }
 
+export const getCourseBySlug = async (req, res) => {
+    try {
+        const course = await courseModel.findOne({ slug: req.params.slug })
+        if (!course) {
+            return res.status(404).json({
+                message: 'Course not found',
+            })
+        }
+        res.status(200).json({
+            message: 'Get course by slug successfully',
+            course,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get course by slug failed',
+            error: error.message,
+        })
+    }
+}
+
 export const getCourseById = async (req, res) => {
     try {
         const course = await courseModel.findById(req.params.id)

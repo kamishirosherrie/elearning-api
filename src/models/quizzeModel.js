@@ -8,7 +8,7 @@ const quizzeSchema = new mongoose.Schema(
         title: { type: String, required: true },
         description: { type: String, required: false },
         slug: { type: String, slug: 'title', unique: true, forceIdSlug: false },
-        lessonId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Lessons' },
+        lessonId: { type: mongoose.Schema.Types.ObjectId, required: true, unique: true, ref: 'Lessons' },
     },
     {
         timestamps: true,
