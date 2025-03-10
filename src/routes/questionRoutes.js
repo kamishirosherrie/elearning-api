@@ -4,7 +4,7 @@ import { addNewQuestion, getAllQuestions, getQuestionByQuzzieSlug } from '~/cont
 const questionRouter = express.Router()
 
 questionRouter.get('/', getAllQuestions)
-questionRouter.get('/getQuestionByQuzzieSlug/:quizzeSlug', getQuestionByQuzzieSlug)
+questionRouter.get('/getQuestionByQuizzeSlug/:quizzeSlug', getQuestionByQuzzieSlug)
 questionRouter.post('/addNewQuestion', addNewQuestion)
 
 export { questionRouter }

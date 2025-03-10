@@ -16,7 +16,28 @@ export const getAllQuizze = async (req, res) => {
     }
 }
 
-export const getQuizzeByLesson = async (req, res) => {
+export const getQuizzeBySlug = async (req, res) => {
+    try {
+        const quizze = await quizzeModel.findOne({ slug: req.params.slug })
+        if (!quizze) {
+            return res.status(400).json({
+                message: 'Quizze not found',
+            })
+        }
+
+        res.status(200).json({
+            message: 'Get quizze successfully',
+            quizze,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get quizze failed',
+            error: error.message,
+        })
+    }
+}
+
+export const getQuizzeByLessonSlug = async (req, res) => {
     try {
         const lesson = await lessonModel.findOne({ slug: req.params.lessonSlug })
         if (!lesson) {
