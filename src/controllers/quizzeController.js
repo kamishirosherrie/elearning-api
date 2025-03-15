@@ -63,6 +63,42 @@ export const getQuizzeByLessonSlug = async (req, res) => {
     }
 }
 
+export const getQuizzesWithQuestions = async (req, res) => {
+    try {
+        const quizzesWithQuestons = await quizzeModel.aggregate([
+            {
+                $lookup: {
+                    from: 'Questions',
+                    localField: '_id',
+                    foreignField: 'quizzeId',
+                    as: 'questions',
+                },
+            },
+            {
+                $lookup: {
+                    from: 'Lessons',
+                    localField: 'lessonId',
+                    foreignField: '_id',
+                    as: 'lesson',
+                },
+            },
+            {
+                $unwind: '$lesson',
+            },
+        ])
+
+        res.status(200).json({
+            message: 'Get quizzes with questions successfully',
+            quizzesWithQuestons,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get quizzes with questions failed',
+            error: error.message,
+        })
+    }
+}
+
 export const addNewQuizze = async (req, res) => {
     try {
         const lesson = await lessonModel.findOne({ title: req.body.lessonName })

@@ -45,26 +45,31 @@ export const getQuestionByQuzzieSlug = async (req, res) => {
 
 export const addNewQuestion = async (req, res) => {
     try {
-        const questionType = await questionTypeModel.findOne({ _id: req.body.questionTypeId })
-        const quizze = await quizzeModel.findOne({ _id: req.body.quizzeId })
+        const quizze = await quizzeModel.findOne({ title: req.body.quizzeName })
 
-        if (!questionType || !quizze) {
+        if (!quizze) {
             return res.status(400).json({
                 message: 'Question type or quizze not found!',
             })
         }
 
-        const question = req.body
-        if (!question.question || !question.answer) {
+        const { questions } = req.body
+        if (!Array.isArray(questions) || questions.length === 0) {
             return res.status(400).json({
-                message: 'Question and answer are required!',
+                message: 'Questions are required!',
             })
         }
 
-        const newQuestion = new questionModel({ ...question, quizzeId: quizze._id, questionTypeId: questionType._id })
-        await newQuestion.save()
+        const newQuestion = await questionModel.insertMany(
+            questions.map((question) => ({
+                question: question.question,
+                questionType: question.questionType,
+                quizzeId: quizze._id,
+                answer: question.answer,
+            })),
+        )
 
-        res.status(200).json({
+        res.status(201).json({
             message: 'Add question successfully',
             newQuestion,
         })

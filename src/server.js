@@ -18,7 +18,7 @@ const START_SERVER = () => {
 
     app.use(
         cors({
-            origin: env.ORIGIN,
+            origin: env.ORIGIN?.split(',') || [],
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             allowedHeaders: ['Content-Type'],
             credentials: true,

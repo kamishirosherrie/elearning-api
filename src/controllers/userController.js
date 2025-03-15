@@ -2,7 +2,7 @@ import { userModel } from '~/models/userModel'
 
 export const getUsers = async (req, res) => {
     try {
-        const users = await userModel.find()
+        const users = await userModel.find().populate('roleId', 'roleName')
         res.status(200).json({ message: 'Get user successfully', users })
     } catch (error) {
         res.status(500).json({ message: 'Get user failed', error: error.message })

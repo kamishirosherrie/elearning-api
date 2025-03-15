@@ -7,13 +7,6 @@ const lessonSchema = new mongoose.Schema(
     {
         title: { type: String, required: true },
         videoUrl: { type: String, required: false },
-        // content: [
-        //     {
-        //         type: { type: String, enum: ['text', 'image', 'video'], required: true },
-        //         value: { type: String, required: true },
-        //         className: { type: String, required: false },
-        //     },
-        // ],
         content: { type: String, required: true, default: '' },
         slug: { type: String, required: false, slug: 'title', unique: true, forceIdSlug: false },
         courseId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Courses' },

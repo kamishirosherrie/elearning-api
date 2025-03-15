@@ -4,7 +4,7 @@ import { lessonModel } from '~/models/lessonModel'
 // [GET ALL LESSONS]
 export const getAllLessons = async (req, res) => {
     try {
-        const lessons = await lessonModel.find()
+        const lessons = await lessonModel.find().populate('courseId', 'title')
         res.status(200).json({
             message: 'Get lessons successfully',
             lessons,
