@@ -10,6 +10,7 @@ import { userRouter } from './routes/userRoutes'
 import { lessonRouter } from './routes/lessonRoutes'
 import { quizzeRouter } from './routes/quizzeRoutes'
 import { questionRouter } from './routes/questionRoutes'
+import { questionTypeRouter } from './routes/questionTypeRoutes'
 
 const START_SERVER = () => {
     const app = express()
@@ -46,6 +47,8 @@ const START_SERVER = () => {
     app.use('/quizze', quizzeRouter)
 
     app.use('/question', questionRouter)
+
+    app.use('/questionType', questionTypeRouter)
 }
 
 ;(async () => {

@@ -1,5 +1,4 @@
 import { questionModel } from '~/models/questionModel'
-import { questionTypeModel } from '~/models/questionTypeModel'
 import { quizzeModel } from '~/models/quizzeModel'
 
 export const getAllQuestions = async (req, res) => {
@@ -63,7 +62,7 @@ export const addNewQuestion = async (req, res) => {
         const newQuestion = await questionModel.insertMany(
             questions.map((question) => ({
                 question: question.question,
-                questionType: question.questionType,
+                questionTypeId: question.questionTypeId,
                 quizzeId: quizze._id,
                 answer: question.answer,
             })),

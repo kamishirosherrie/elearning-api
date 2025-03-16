@@ -2,8 +2,8 @@ import mongoose from 'mongoose'
 
 const questionSchema = new mongoose.Schema(
     {
-        question: { type: String, required: true, unique: true },
-        questionType: { type: String, required: true },
+        question: { type: String, required: true },
+        questionTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'QuestionTypes', required: true },
         quizzeId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Quizzes' },
         answer: [{ isCorrect: { type: Boolean, required: true }, text: { type: String, required: true } }],
     },

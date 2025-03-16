@@ -5,7 +5,7 @@ mongoose.plugin(slug)
 
 const courseSchema = new mongoose.Schema(
     {
-        title: { type: String, unique: true, required: true },
+        title: { type: String, required: true },
         description: { type: String, required: false },
         slug: { type: String, slug: 'title', unique: true, forceIdSlug: false },
     },
