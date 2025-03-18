@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt'
 import { userModel } from '~/models/userModel'
 
 export const getUsers = async (req, res) => {
@@ -11,7 +12,7 @@ export const getUsers = async (req, res) => {
 
 export const getUserByUserName = async (req, res) => {
     try {
-        const user = await userModel.findOne({ userName: req.params.userName })
+        const user = await (await userModel.findOne({ userName: req.params.userName })).populate('roleId', 'roleName')
         if (!user) {
             return res.status(404).json({ message: 'User not found' })
         }
@@ -24,23 +25,24 @@ export const getUserByUserName = async (req, res) => {
 export const addUser = async (req, res) => {
     try {
         const user = req.body
+
         const isUserNameExist = await userModel.findOne({ userName: user.userName })
+
         const isEmailExist = await userModel.findOne({ email: user.email })
+
         const isPhoneNumberExist = await userModel.findOne({ phoneNumber: user.phoneNumber })
 
-        switch (user) {
-            case isUserNameExist:
-                return res.status(400).json({ message: 'User name already exists' })
-            case isEmailExist:
-                return res.status(400).json({ message: 'Email already exists' })
-            case isPhoneNumberExist:
-                return res.status(400).json({ message: 'Phone number already exists' })
-            default:
-                break
-        }
+        if (isUserNameExist) return res.status(400).json({ message: 'User name already exists' })
 
-        const newUser = new userModel(user)
+        if (isEmailExist) return res.status(400).json({ message: 'Email already exists' })
+
+        if (isPhoneNumberExist) return res.status(400).json({ message: 'Phone number already exists' })
+
+        const hashedPassword = await bcrypt.hash(user.passWord, 10)
+
+        const newUser = new userModel({ ...user, passWord: hashedPassword })
         await newUser.save()
+
         return res.status(201).json({ message: 'Add user successfully', user: newUser })
     } catch (error) {
         res.status(500).json({ message: 'Add user failed', error: error.message })
@@ -50,34 +52,31 @@ export const addUser = async (req, res) => {
 export const updateUserInfo = async (req, res) => {
     try {
         const user = req.body
-        const isUserNameExist = await userModel.findOne({ userName: user.userName })
-        const isEmailExist = await userModel.findOne({ email: user.email })
-        const isPhoneNumberExist = await userModel.findOne({ phoneNumber: user.phoneNumber })
 
-        switch (user) {
-            case isUserNameExist:
-                return res.status(400).json({ message: 'User name already exists' })
-            case isEmailExist:
-                return res.status(400).json({ message: 'Email already exists' })
-            case isPhoneNumberExist:
-                return res.status(400).json({ message: 'Phone number already exists' })
-            default:
-                break
-        }
-
-        const role = await isUserNameExist.populate('roleId', 'roleName')
-        if (role.roleId.roleName === 'User') {
-            return res.status(400).json({ message: 'You are not allowed to update user' })
-        }
-
-        const updatedUser = await userModel.findOneAndUpdate({ userName: req.params.userName }, user, {
-            new: true,
-            runValidators: true,
-        })
-
-        if (!updatedUser) {
+        const existingUser = await userModel.findById(user._id)
+        if (!existingUser) {
             return res.status(404).json({ message: 'User not found' })
         }
+
+        const isUserNameExist = await userModel.findOne({ userName: user.userName, _id: { $ne: user._id } })
+        const isEmailExist = await userModel.findOne({ email: user.email, _id: { $ne: user._id } })
+        const isPhoneNumberExist = await userModel.findOne({ phoneNumber: user.phoneNumber, _id: { $ne: user._id } })
+
+        if (isUserNameExist) return res.status(400).json({ message: 'User name already exists' })
+        if (isEmailExist) return res.status(400).json({ message: 'Email already exists' })
+        if (isPhoneNumberExist) return res.status(400).json({ message: 'Phone number already exists' })
+
+        await existingUser.populate('roleId', 'roleName')
+        if (existingUser.roleId?.roleName === 'User') {
+            return res.status(403).json({ message: 'You are not allowed to update user' })
+        }
+        const hashedPassword = await bcrypt.hash(user.passWord, 10)
+        const updatedUser = await userModel.findByIdAndUpdate(
+            user._id,
+            { ...user, passWord: hashedPassword },
+            { new: true, runValidators: true },
+        )
+
         return res.status(200).json({ message: 'Update user successfully', user: updatedUser })
     } catch (error) {
         res.status(500).json({ message: 'Update user failed', error: error.message })
