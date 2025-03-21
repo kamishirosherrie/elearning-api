@@ -20,7 +20,7 @@ courseRouter.get('/enrollment', getCourseEnrollments)
 courseRouter.post('/addCourse', addNewCourse)
 courseRouter.post('/addCourse/enrollment', addCourseEnrollment)
 
-courseRouter.put('/updateCourse/:id', updateCourse)
+courseRouter.put('/updateCourse', updateCourse)
 
 courseRouter.delete('/deleteCourse/:id', deleteCourse)
 

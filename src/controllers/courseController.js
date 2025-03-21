@@ -116,7 +116,7 @@ export const addCourseEnrollment = async (req, res) => {
 // [PUT]
 export const updateCourse = async (req, res) => {
     try {
-        const course = await courseModel.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+        const course = await courseModel.findByIdAndUpdate(req.body._id, req.body, { new: true, runValidators: true })
         if (!course) {
             return res.status(404).json({
                 message: 'Course not found',
