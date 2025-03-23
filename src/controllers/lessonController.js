@@ -20,7 +20,7 @@ export const getAllLessons = async (req, res) => {
 // [GET LESSON BY SLUG]
 export const getLessonBySlug = async (req, res) => {
     try {
-        const lesson = await lessonModel.findOne({ slug: req.params.slug })
+        const lesson = await lessonModel.findOne({ slug: req.params.slug }).populate('courseId', 'title')
         if (!lesson) {
             return res.status(400).json({
                 message: 'Lesson not found',
@@ -90,6 +90,31 @@ export const addNewLesson = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: 'Add lesson failed',
+            error: error.message,
+        })
+    }
+}
+
+export const updateLesson = async (req, res) => {
+    try {
+        const lesson = await lessonModel.findOne({ slug: req.body.slug })
+        if (!lesson) {
+            return res.status(400).json({
+                message: 'Lesson not found',
+            })
+        }
+
+        const updatedLesson = await lessonModel.findByIdAndUpdate(lesson._id, req.body, {
+            new: true,
+            runValidators: true,
+        })
+        res.status(200).json({
+            message: 'Update lesson successfully',
+            updatedLesson,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Update lesson failed',
             error: error.message,
         })
     }
