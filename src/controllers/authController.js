@@ -8,8 +8,8 @@ import { sendEmail } from '~/services/mailService'
 
 export const login = async (req, res) => {
     try {
-        const { userName, passWord } = req.body
-        const user = await userModel.findOne({ userName })
+        const { identifier, passWord } = req.body
+        const user = await userModel.findOne({ $or: [{ userName: identifier }, { email: identifier }] })
         if (!user) {
             return res.status(400).json({ message: 'Login failed! User not found' })
         }
