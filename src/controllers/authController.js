@@ -31,6 +31,44 @@ export const login = async (req, res) => {
     }
 }
 
+export const loginWithGoogle = async (req, res) => {
+    try {
+        const { email, fullName } = req.body
+        let user = await userModel.findOne({ email: email })
+        if (!user) {
+            const role = await roleModel.findOne({ roleName: 'User' })
+            if (!role) {
+                return res.status(400).json({
+                    message: 'Role not found',
+                })
+            }
+
+            const randomPassword = Math.random().toString(36).slice(-8)
+            const hashedPassword = bcrypt.hashSync(randomPassword, 10)
+
+            user = await userModel.create({
+                fullName: fullName,
+                email: email,
+                userName: email,
+                passWord: hashedPassword,
+                roleId: role._id,
+            })
+        }
+
+        const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 1000,
+        })
+
+        res.status(200).json({ message: 'Login successfully', user })
+    } catch (error) {
+        res.status(500).json({ message: 'Login failed', error: error.message })
+    }
+}
+
 export const logout = async (req, res) => {
     try {
         res.clearCookie('token', {

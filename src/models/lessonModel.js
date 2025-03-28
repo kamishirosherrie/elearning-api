@@ -5,12 +5,18 @@ mongoose.plugin(slug)
 
 const lessonSchema = new mongoose.Schema(
     {
-        title: { type: String, required: true },
-        videoUrl: { type: String, required: false },
-        content: { type: String, required: true, default: '' },
-        slug: { type: String, required: false, slug: 'title', unique: true, forceIdSlug: false },
+        chapterTitle: { type: String, required: true },
+        lesson: [
+            {
+                title: { type: String, required: true },
+                videoUrl: { type: String, required: false },
+                content: { type: String, required: true, default: '' },
+                slug: { type: String, required: false, slug: 'title', unique: true, forceIdSlug: false },
+            },
+        ],
+        order: { type: Number, required: true },
         courseId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Courses' },
-        // userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Users' },
+        userId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Users' },
     },
     {
         timestamps: true,
