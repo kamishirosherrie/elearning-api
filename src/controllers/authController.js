@@ -31,7 +31,7 @@ export const login = async (req, res) => {
     }
 }
 
-export const loginWithGoogle = async (req, res) => {
+export const socialLogin = async (req, res) => {
     try {
         const { email, fullName } = req.body
         let user = await userModel.findOne({ email: email })
@@ -53,6 +53,8 @@ export const loginWithGoogle = async (req, res) => {
                 passWord: hashedPassword,
                 roleId: role._id,
             })
+
+            await sendEmail(newUser.email, 'Register successfully', 'Welcome to E-Learning Website!')
         }
 
         const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
@@ -63,7 +65,7 @@ export const loginWithGoogle = async (req, res) => {
             maxAge: 60 * 60 * 1000,
         })
 
-        res.status(200).json({ message: 'Login successfully', user })
+        res.status(200).json({ message: 'Login successfully', token, user })
     } catch (error) {
         res.status(500).json({ message: 'Login failed', error: error.message })
     }

@@ -12,6 +12,7 @@ import { quizzeRouter } from './routes/quizzeRoutes'
 import { questionRouter } from './routes/questionRoutes'
 import { questionTypeRouter } from './routes/questionTypeRoutes'
 import { submissionRoutes } from './routes/submissionRoutes'
+import { authenticateToken } from './middlewares/authenticateToken'
 
 const START_SERVER = () => {
     const app = express()
@@ -22,7 +23,7 @@ const START_SERVER = () => {
         cors({
             origin: env.ORIGIN?.split(',') || [],
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
-            allowedHeaders: ['Content-Type'],
+            allowedHeaders: ['Content-Type', 'Authorization'],
             credentials: true,
         }),
     )
@@ -39,7 +40,7 @@ const START_SERVER = () => {
 
     app.use('/auth', authRouter)
 
-    app.use('/user', userRouter)
+    app.use('/user', authenticateToken, userRouter)
 
     app.use('/course', courseRouter)
 
@@ -51,7 +52,7 @@ const START_SERVER = () => {
 
     app.use('/questionType', questionTypeRouter)
 
-    app.use('/submission', submissionRoutes)
+    app.use('/submission', authenticateToken, submissionRoutes)
 }
 
 ;(async () => {

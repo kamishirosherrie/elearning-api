@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { env } from '~/config/environment'
 
-export const authenticateToken = (req, res) => {
+export const authenticateToken = (req, res, next) => {
     try {
         const authHeader = req.headers['authorization']
         const token = authHeader && authHeader.split(' ')[1]
@@ -16,6 +16,7 @@ export const authenticateToken = (req, res) => {
             }
             req.user = user
         })
+        next()
     } catch (error) {
         res.status(500).json({ message: 'Authenticate failed', error: error.message })
     }
