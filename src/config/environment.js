@@ -9,4 +9,6 @@ export const env = {
     APP_PORT: process.env.APP_PORT,
     ORIGIN: process.env.ORIGIN,
     AUTHOR: process.env.AUTHOR,
+    NODE_MAILER_USER: process.env.NODE_MAILER_USER,
+    NODE_MAILER_PASS: process.env.NODE_MAILER_PASS,
 }

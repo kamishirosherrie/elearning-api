@@ -54,7 +54,8 @@ export const getCourseById = async (req, res) => {
 
 export const getCourseEnrollments = async (req, res) => {
     try {
-        const courseEnrollments = await courseEnrollmentModel.find()
+        const courseEnrollments = await courseEnrollmentModel.find().populate('courseId', 'title').populate('userId')
+
         res.status(200).json({
             message: 'Get course enrollments successfully',
             courseEnrollments,
@@ -98,6 +99,14 @@ export const addCourseEnrollment = async (req, res) => {
                 message: 'Course ID and User ID are required',
             })
         }
+
+        const courseEnrollment = await courseEnrollmentModel.findOne({ courseId, userId })
+        if (courseEnrollment) {
+            return res.status(400).json({
+                message: 'You have already enrolled this course',
+            })
+        }
+
         const newCourseEnrollment = new courseEnrollmentModel({ courseId, userId })
         await newCourseEnrollment.save()
 

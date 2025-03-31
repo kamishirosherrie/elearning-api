@@ -21,7 +21,7 @@ export const login = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'none',
             maxAge: 60 * 60 * 1000,
         })
 
@@ -61,7 +61,7 @@ export const socialLogin = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'none',
             maxAge: 60 * 60 * 1000,
         })
 
@@ -76,7 +76,7 @@ export const logout = async (req, res) => {
         res.clearCookie('token', {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'none',
         })
         res.status(200).json({ message: 'Logout successfully' })
     } catch (error) {
@@ -85,23 +85,23 @@ export const logout = async (req, res) => {
 }
 
 export const register = async (req, res) => {
-    try {
-        const role = await roleModel.findOne({ roleName: 'User' })
-        if (!role) {
-            return res.status(400).json({
-                message: 'Role not found',
-            })
-        }
-
-        const user = req.body
-        const isUserExist = await userModel.findOne({
-            $or: [{ userName: user.userName }, { email: user.email }],
+    const role = await roleModel.findOne({ roleName: 'User' })
+    if (!role) {
+        return res.status(400).json({
+            message: 'Role not found',
         })
-        if (isUserExist) {
-            return res.status(400).json({
-                message: 'User already exists',
-            })
-        }
+    }
+
+    const user = req.body
+    const isUserExist = await userModel.findOne({
+        $or: [{ userName: user.userName }, { email: user.email }],
+    })
+    if (isUserExist) {
+        return res.status(400).json({
+            message: 'User already exists',
+        })
+    }
+    try {
         const hashedPassword = await bcrypt.hash(user.passWord, 10)
         const newUser = new userModel({ ...user, passWord: hashedPassword, roleId: role._id })
         await newUser.save()

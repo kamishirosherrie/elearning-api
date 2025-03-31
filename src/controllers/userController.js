@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import { courseEnrollmentModel } from '~/models/courseEnrollmentModel'
 import { userModel } from '~/models/userModel'
 
 export const getUsers = async (req, res) => {
@@ -10,15 +11,41 @@ export const getUsers = async (req, res) => {
     }
 }
 
+export const getUserById = async (req, res) => {
+    try {
+        const user = await userModel.findById(req.params.id).populate('roleId', 'roleName')
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' })
+        }
+        res.status(200).json({ message: 'Get user by id successfully', user })
+    } catch (error) {
+        res.status(500).json({ message: 'Get user by id failed', error: error.message })
+    }
+}
+
 export const getUserByUserName = async (req, res) => {
     try {
-        const user = await (await userModel.findOne({ userName: req.params.userName })).populate('roleId', 'roleName')
+        const user = await userModel.findOne({ userName: req.params.userName }).populate('roleId', 'roleName')
         if (!user) {
             return res.status(404).json({ message: 'User not found' })
         }
         res.status(200).json({ message: 'Get user by userName successfully', user })
     } catch (error) {
         res.status(500).json({ message: 'Get user by userName failed', error: error.message })
+    }
+}
+
+export const getUserCourses = async (req, res) => {
+    try {
+        const user = await courseEnrollmentModel.find({ userId: req.params.userId }).populate('courseId', 'title')
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' })
+        }
+
+        res.status(200).json({ message: `Get user's courses successfully`, user })
+    } catch (error) {
+        res.status(500).json({ message: 'Get user courses failed', error: error.message })
     }
 }
 

@@ -1,23 +1,25 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 
 import { env } from './config/environment'
-import { roleRouter } from './routes/roleRoutes'
-import { courseRouter } from './routes/courseRoutes'
-import { authRouter } from './routes/authRoutes'
-import { userRouter } from './routes/userRoutes'
-import { lessonRouter } from './routes/lessonRoutes'
-import { quizzeRouter } from './routes/quizzeRoutes'
-import { questionRouter } from './routes/questionRoutes'
-import { questionTypeRouter } from './routes/questionTypeRoutes'
-import { submissionRoutes } from './routes/submissionRoutes'
+import { roleRouter } from './routes/v1/roleRoutes'
+import { courseRouter } from './routes/v1/courseRoutes'
+import { authRouter } from './routes/v1/authRoutes'
+import { userRouter } from './routes/v1/userRoutes'
+import { lessonRouter } from './routes/v1/lessonRoutes'
+import { quizzeRouter } from './routes/v1/quizzeRoutes'
+import { questionRouter } from './routes/v1/questionRoutes'
+import { questionTypeRouter } from './routes/v1/questionTypeRoutes'
+import { submissionRoutes } from './routes/v1/submissionRoutes'
 import { authenticateToken } from './middlewares/authenticateToken'
 
 const START_SERVER = () => {
     const app = express()
 
     app.use(express.json())
+    app.use(cookieParser())
 
     app.use(
         cors({
@@ -40,7 +42,7 @@ const START_SERVER = () => {
 
     app.use('/auth', authRouter)
 
-    app.use('/user', authenticateToken, userRouter)
+    app.use('/user', userRouter)
 
     app.use('/course', courseRouter)
 
