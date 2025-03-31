@@ -53,7 +53,6 @@ export const getLessonByCourseSlug = async (req, res) => {
         res.status(200).json({
             message: 'Get lessons by course successfully',
             lessons: lessons,
-            courseSlug: course.slug,
         })
     } catch (error) {
         res.status(500).json({

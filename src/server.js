@@ -46,7 +46,7 @@ const START_SERVER = () => {
 
     app.use('/course', courseRouter)
 
-    app.use('/lesson', authenticateToken, lessonRouter)
+    app.use('/lesson', lessonRouter)
 
     app.use('/quizze', authenticateToken, quizzeRouter)
 

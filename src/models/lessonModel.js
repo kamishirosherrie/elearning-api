@@ -8,6 +8,8 @@ const lessonSchema = new mongoose.Schema(
         chapterTitle: { type: String, required: true },
         lesson: [
             {
+                chapter: { type: String, required: true },
+                order: { type: Number, required: true },
                 title: { type: String, required: true },
                 videoUrl: { type: String, required: false },
                 content: { type: String, required: true, default: '' },

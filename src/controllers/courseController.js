@@ -73,7 +73,7 @@ export const getCourseEnrollmentsById = async (req, res) => {
         const { userId, courseId } = req.query
         const courseEnrollment = await courseEnrollmentModel.findOne({ userId, courseId })
 
-        if (courseEnrollment.length === 0) {
+        if (courseEnrollment.length === 0 || !courseEnrollment) {
             return res.status(404).json({
                 message: 'You have not enrolled this course yet.',
             })
