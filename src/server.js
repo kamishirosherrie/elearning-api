@@ -38,21 +38,21 @@ const START_SERVER = () => {
         console.log(`Hello ${env.AUTHOR}, I'm running at http://${env.APP_HOST}:${env.APP_PORT}`)
     })
 
-    app.use('/role', roleRouter)
+    app.use('/role', authenticateToken, roleRouter)
 
     app.use('/auth', authRouter)
 
-    app.use('/user', userRouter)
+    app.use('/user', authenticateToken, userRouter)
 
     app.use('/course', courseRouter)
 
-    app.use('/lesson', lessonRouter)
+    app.use('/lesson', authenticateToken, lessonRouter)
 
-    app.use('/quizze', quizzeRouter)
+    app.use('/quizze', authenticateToken, quizzeRouter)
 
-    app.use('/question', questionRouter)
+    app.use('/question', authenticateToken, questionRouter)
 
-    app.use('/questionType', questionTypeRouter)
+    app.use('/questionType', authenticateToken, questionTypeRouter)
 
     app.use('/submission', authenticateToken, submissionRoutes)
 }

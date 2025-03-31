@@ -10,11 +10,7 @@ export const authenticateToken = (req, res, next) => {
 
     try {
         const tokenDecode = jwt.verify(token, env.ACCESS_TOKEN_SECRET)
-        if (tokenDecode.userId) {
-            req.body.userId = tokenDecode.userId
-        } else {
-            return res.status(401).json({ message: 'Unauthorized' })
-        }
+        req.user = tokenDecode
 
         next()
     } catch (error) {

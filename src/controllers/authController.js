@@ -21,7 +21,7 @@ export const login = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'none',
+            sameSite: 'lax',
             maxAge: 60 * 60 * 1000,
         })
 
@@ -61,7 +61,7 @@ export const socialLogin = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'none',
+            sameSite: 'lax',
             maxAge: 60 * 60 * 1000,
         })
 
@@ -76,7 +76,7 @@ export const logout = async (req, res) => {
         res.clearCookie('token', {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'none',
+            sameSite: 'lax',
         })
         res.status(200).json({ message: 'Logout successfully' })
     } catch (error) {

@@ -13,7 +13,7 @@ const userRouter = express.Router()
 
 userRouter.get('/', getUsers)
 userRouter.get('/:id', getUserById)
-userRouter.get('/getUserInfo', getUserByUserName)
+userRouter.get('/getUserInfo/:userName', getUserByUserName)
 userRouter.get('/getUserInfo/course/:userId', getUserCourses)
 userRouter.post('/addUser', addUser)
 userRouter.put('/updateUserInfo', updateUserInfo)

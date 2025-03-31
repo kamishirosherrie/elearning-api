@@ -67,6 +67,30 @@ export const getCourseEnrollments = async (req, res) => {
         })
     }
 }
+
+export const getCourseEnrollmentsById = async (req, res) => {
+    try {
+        const { userId, courseId } = req.query
+        const courseEnrollment = await courseEnrollmentModel.findOne({ userId, courseId })
+
+        if (courseEnrollment.length === 0) {
+            return res.status(404).json({
+                message: 'You have not enrolled this course yet.',
+            })
+        }
+
+        res.status(200).json({
+            message: 'Get course enrollments successfully',
+            courseEnrollment,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get course enrollments failed',
+            error: error.message,
+        })
+    }
+}
+
 // [POST]
 export const addNewCourse = async (req, res) => {
     try {
