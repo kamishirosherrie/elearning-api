@@ -17,12 +17,12 @@ export const login = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: 'Login failed! Wrong password' })
         }
-        const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+        const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
         res.cookie('token', token, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 60 * 60 * 1000,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
         res.status(200).json({ message: 'Login successfully', token, user })
@@ -57,12 +57,12 @@ export const socialLogin = async (req, res) => {
             await sendEmail(newUser.email, 'Register successfully', 'Welcome to E-Learning Website!')
         }
 
-        const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+        const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
         res.cookie('token', token, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 60 * 60 * 1000,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
         res.status(200).json({ message: 'Login successfully', token, user })
