@@ -1,10 +1,18 @@
+import { chapterModel } from '~/models/chapterModel'
 import { courseModel } from '~/models/courseModel'
 import { lessonModel } from '~/models/lessonModel'
 
-// [GET ALL LESSONS]
 export const getAllLessons = async (req, res) => {
     try {
-        const lessons = await lessonModel.find().populate('courseId', 'title')
+        const lessons = await lessonModel
+            .find()
+            .populate({
+                path: 'chapterId',
+                populate: {
+                    path: 'courseId',
+                },
+            })
+            .sort({ order: 1 })
         res.status(200).json({
             message: 'Get lessons successfully',
             lessons,
@@ -17,10 +25,14 @@ export const getAllLessons = async (req, res) => {
     }
 }
 
-// [GET LESSON BY SLUG]
-export const getLessonBySlug = async (req, res) => {
+export const getLessonById = async (req, res) => {
     try {
-        const lesson = await lessonModel.findOne({ slug: req.params.slug }).populate('courseId', 'title')
+        const lesson = await lessonModel.findById(req.params.id).populate({
+            path: 'chapterId',
+            populate: {
+                path: 'courseId',
+            },
+        })
         if (!lesson) {
             return res.status(400).json({
                 message: 'Lesson not found',
@@ -39,7 +51,32 @@ export const getLessonBySlug = async (req, res) => {
     }
 }
 
-// [GET LESSON BY COURSE]
+export const getLessonBySlug = async (req, res) => {
+    try {
+        const lesson = await lessonModel.findOne({ slug: req.params.slug }).populate({
+            path: 'chapterId',
+            populate: {
+                path: 'courseId',
+            },
+        })
+        if (!lesson) {
+            return res.status(400).json({
+                message: 'Lesson not found',
+            })
+        }
+
+        res.status(200).json({
+            message: 'Get lesson successfully',
+            lesson,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get lesson failed',
+            error: error.message,
+        })
+    }
+}
+
 export const getLessonByCourseSlug = async (req, res) => {
     try {
         const course = await courseModel.findOne({ slug: req.params.courseName })
@@ -62,24 +99,60 @@ export const getLessonByCourseSlug = async (req, res) => {
     }
 }
 
-// [INSERT LESSON]
-export const addNewLesson = async (req, res) => {
+export const getCurrentLessonOrder = async (req, res) => {
     try {
-        const course = await courseModel.findOne({ title: req.body.courseName })
-        if (!course) {
+        const { courseId, chapterId } = req.params
+
+        const chapter = await chapterModel.findOne({
+            _id: chapterId,
+            courseId: courseId,
+        })
+
+        if (!chapter) {
             return res.status(400).json({
-                message: 'Course not found',
+                message: 'Chapter not found',
             })
         }
 
+        const currentLessonOrder = await lessonModel.find({ chapterId: chapter._id }).countDocuments()
+
+        res.status(200).json({
+            message: 'Get current lesson order successfully',
+            currentLessonOrder,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get current lesson order failed',
+            error: error.message,
+        })
+    }
+}
+
+export const addNewLesson = async (req, res) => {
+    try {
         const lesson = req.body
+
         if (!lesson.title || !lesson.content) {
             return res.status(400).json({
                 message: 'Title, Content is required',
             })
         }
+        const chapter = await chapterModel.findOne({ _id: lesson.chapterId })
+        if (!chapter) {
+            return res.status(400).json({
+                message: 'Chapter not found',
+            })
+        }
 
-        const newLesson = new lessonModel({ ...lesson, courseId: course._id })
+        const lessonOrder = await lessonModel.find({ chapterId: lesson.chapterId }).countDocuments()
+
+        const newLesson = new lessonModel({
+            title: lesson.title,
+            content: lesson.content,
+            order: lessonOrder + 1,
+            chapterId: chapter._id,
+        })
+
         await newLesson.save()
 
         res.status(200).json({
@@ -103,10 +176,33 @@ export const updateLesson = async (req, res) => {
             })
         }
 
-        const updatedLesson = await lessonModel.findByIdAndUpdate(lesson._id, req.body, {
-            new: true,
-            runValidators: true,
-        })
+        // const lessons = await lessonModel.find()
+
+        // const lessonOrder = lessons.findIndex((item) => item.order === req.body.order)
+        // console.log(lessonOrder)
+
+        // if (lessonOrder > 0) {
+        //     return res.status(400).json({
+        //         message: 'Order already exists',
+        //     })
+        // }
+
+        const updatedLesson = await lessonModel.findByIdAndUpdate(
+            lesson._id,
+            {
+                title: req.body.title,
+                content: req.body.content,
+                chapterId: req.body.chapterId,
+                order: req.body.order,
+            },
+            {
+                new: true,
+                runValidators: true,
+            },
+        )
+
+        console.log(updatedLesson)
+
         res.status(200).json({
             message: 'Update lesson successfully',
             updatedLesson,

@@ -23,7 +23,10 @@ export const getQuestionByQuzzieSlug = async (req, res) => {
                 message: 'Quizze not found',
             })
         }
-        const questions = await questionModel.find({ quizzeId: quizze._id })
+        const questions = await questionModel
+            .find({ quizzeId: quizze._id })
+            .populate('questionTypeId')
+            .populate('quizzeId')
         if (!questions) {
             return res.status(400).json({
                 message: 'Questions not found',

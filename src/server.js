@@ -14,6 +14,7 @@ import { questionRouter } from './routes/v1/questionRoutes'
 import { questionTypeRouter } from './routes/v1/questionTypeRoutes'
 import { submissionRoutes } from './routes/v1/submissionRoutes'
 import { authenticateToken } from './middlewares/authenticateToken'
+import { chapterRouter } from './routes/v1/chapterRoutes'
 
 const START_SERVER = () => {
     const app = express()
@@ -45,6 +46,8 @@ const START_SERVER = () => {
     app.use('/user', authenticateToken, userRouter)
 
     app.use('/course', courseRouter)
+
+    app.use('/chapter', authenticateToken, chapterRouter)
 
     app.use('/lesson', lessonRouter)
 
