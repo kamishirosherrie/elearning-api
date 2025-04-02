@@ -176,17 +176,6 @@ export const updateLesson = async (req, res) => {
             })
         }
 
-        // const lessons = await lessonModel.find()
-
-        // const lessonOrder = lessons.findIndex((item) => item.order === req.body.order)
-        // console.log(lessonOrder)
-
-        // if (lessonOrder > 0) {
-        //     return res.status(400).json({
-        //         message: 'Order already exists',
-        //     })
-        // }
-
         const updatedLesson = await lessonModel.findByIdAndUpdate(
             lesson._id,
             {
@@ -210,6 +199,28 @@ export const updateLesson = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: 'Update lesson failed',
+            error: error.message,
+        })
+    }
+}
+
+export const deleteLesson = async (req, res) => {
+    try {
+        const lesson = await lessonModel.findOne({ _id: req.params.id })
+        if (!lesson) {
+            return res.status(400).json({
+                message: 'Lesson not found',
+            })
+        }
+
+        await lessonModel.findByIdAndDelete(lesson._id)
+
+        res.status(200).json({
+            message: 'Delete lesson successfully',
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Delete lesson failed',
             error: error.message,
         })
     }

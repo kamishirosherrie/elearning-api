@@ -1,6 +1,7 @@
 import express from 'express'
 import {
     addNewLesson,
+    deleteLesson,
     getAllLessons,
     getCurrentLessonOrder,
     getLessonByCourseSlug,
@@ -20,5 +21,6 @@ lessonRouter.get('/getLesson/:courseId/:chapterId', authenticateToken, getCurren
 
 lessonRouter.post('/addNewLesson', authenticateToken, addNewLesson)
 lessonRouter.put('/updateLesson', authenticateToken, updateLesson)
+lessonRouter.delete('/deleteLesson/:id', authenticateToken, deleteLesson)
 
 export { lessonRouter }

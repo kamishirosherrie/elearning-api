@@ -3,7 +3,7 @@ import { quizzeModel } from '~/models/quizzeModel'
 
 export const getAllQuestions = async (req, res) => {
     try {
-        const questions = await questionModel.find()
+        const questions = await questionModel.find().populate('questionTypeId').populate('quizzeId')
         res.status(200).json({
             questions,
         })

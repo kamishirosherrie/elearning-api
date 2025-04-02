@@ -18,7 +18,7 @@ export const getAllQuizze = async (req, res) => {
 
 export const getQuizzeBySlug = async (req, res) => {
     try {
-        const quizze = await quizzeModel.findOne({ slug: req.params.slug })
+        const quizze = await quizzeModel.findOne({ slug: req.params.slug }).populate('lessonId')
         if (!quizze) {
             return res.status(400).json({
                 message: 'Quizze not found',
@@ -125,6 +125,28 @@ export const addNewQuizze = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: 'Add quizze failed',
+            error: error.message,
+        })
+    }
+}
+
+export const deleteQuizze = async (req, res) => {
+    try {
+        const quizze = await quizzeModel.findOne({ _id: req.params.id })
+        if (!quizze) {
+            return res.status(400).json({
+                message: 'Quizze not found',
+            })
+        }
+
+        await quizzeModel.findByIdAndDelete(quizze._id)
+
+        res.status(200).json({
+            message: 'Delete quizze successfully',
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Delete quizze failed',
             error: error.message,
         })
     }
