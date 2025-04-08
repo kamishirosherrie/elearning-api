@@ -16,6 +16,9 @@ const userSchema = new mongoose.Schema(
         ward: { type: String, required: false },
         roleId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Roles' },
         isDisabled: { type: Boolean, required: true, default: false },
+        isOtpVerified: { type: Boolean, required: true, default: false },
+        resetOtp: { type: String, required: false, default: 0 },
+        resetOtpExpireAt: { type: Number, required: false, default: 0 },
     },
     {
         timestamps: true,
