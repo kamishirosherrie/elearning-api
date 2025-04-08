@@ -37,7 +37,7 @@ export const getUserByUserName = async (req, res) => {
 
 export const getUserCourses = async (req, res) => {
     try {
-        const user = await courseEnrollmentModel.find({ userId: req.params.userId }).populate('courseId', 'title')
+        const user = await courseEnrollmentModel.find({ userId: req.params.userId }).populate('courseId')
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' })
@@ -87,16 +87,10 @@ export const updateUserInfo = async (req, res) => {
 
         const isUserNameExist = await userModel.findOne({ userName: user.userName, _id: { $ne: user._id } })
         const isEmailExist = await userModel.findOne({ email: user.email, _id: { $ne: user._id } })
-        const isPhoneNumberExist = await userModel.findOne({ phoneNumber: user.phoneNumber, _id: { $ne: user._id } })
 
         if (isUserNameExist) return res.status(400).json({ message: 'User name already exists' })
         if (isEmailExist) return res.status(400).json({ message: 'Email already exists' })
-        if (isPhoneNumberExist) return res.status(400).json({ message: 'Phone number already exists' })
 
-        await existingUser.populate('roleId', 'roleName')
-        if (existingUser.roleId?.roleName === 'User') {
-            return res.status(403).json({ message: 'You are not allowed to update user' })
-        }
         const hashedPassword = await bcrypt.hash(user.passWord, 10)
         const updatedUser = await userModel.findByIdAndUpdate(
             user._id,

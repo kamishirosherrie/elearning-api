@@ -55,7 +55,11 @@ export const getCourseById = async (req, res) => {
 export const getCourseEnrollments = async (req, res) => {
     try {
         const courseEnrollments = await courseEnrollmentModel.find().populate('courseId', 'title').populate('userId')
-
+        if (!courseEnrollments) {
+            return res.status(404).json({
+                message: 'Course enrollments not found',
+            })
+        }
         res.status(200).json({
             message: 'Get course enrollments successfully',
             courseEnrollments,
@@ -71,9 +75,10 @@ export const getCourseEnrollments = async (req, res) => {
 export const getCourseEnrollmentsById = async (req, res) => {
     try {
         const { userId, courseId } = req.query
+
         const courseEnrollment = await courseEnrollmentModel.findOne({ userId, courseId })
 
-        if (courseEnrollment.length === 0 || !courseEnrollment) {
+        if (!courseEnrollment || courseEnrollment.length === 0) {
             return res.status(404).json({
                 message: 'You have not enrolled this course yet.',
             })

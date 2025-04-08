@@ -85,15 +85,52 @@ export const getLessonByCourseSlug = async (req, res) => {
                 message: 'Course not found',
             })
         }
+        const chapters = await chapterModel.aggregate([
+            { $match: { courseId: course._id } },
+            {
+                $lookup: {
+                    from: 'Lessons',
+                    localField: '_id',
+                    foreignField: 'chapterId',
+                    as: 'lessons',
+                },
+            },
+            {
+                $unwind: { path: '$lessons', preserveNullAndEmptyArrays: true },
+            },
+            {
+                $lookup: {
+                    from: 'Quizzes',
+                    localField: 'lessons._id',
+                    foreignField: 'lessonId',
+                    as: 'lessons.quizzes',
+                },
+            },
+            {
+                $group: {
+                    _id: '$_id',
+                    title: { $first: '$title' },
+                    courseId: { $first: '$courseId' },
+                    order: { $first: '$order' },
+                    lessons: { $push: '$lessons' },
+                },
+            },
+            { $sort: { order: 1 } },
+        ])
 
-        const lessons = await lessonModel.find({ courseId: course._id })
+        if (!chapters || chapters.length === 0) {
+            return res.status(400).json({
+                message: 'Chapters not found',
+            })
+        }
+
         res.status(200).json({
-            message: 'Get lessons by course successfully',
-            lessons: lessons,
+            message: 'Get lesson by course slug successfully',
+            chapters,
         })
     } catch (error) {
         res.status(500).json({
-            message: 'Get lessons by course failed',
+            message: 'Get lesson by course slug failed',
             error: error.message,
         })
     }
