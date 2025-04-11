@@ -21,7 +21,7 @@ export const login = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -61,7 +61,7 @@ export const socialLogin = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -76,7 +76,7 @@ export const logout = async (req, res) => {
         res.clearCookie('token', {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
         })
         res.status(200).json({ message: 'Logout successfully' })
     } catch (error) {
@@ -110,7 +110,7 @@ export const register = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -206,7 +206,7 @@ export const verifyOTP = async (req, res) => {
         res.cookie('resetToken', resetToken, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 5 * 60 * 1000,
         })
 
@@ -253,7 +253,7 @@ export const resetPassWord = async (req, res) => {
         res.clearCookie('resetToken', {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
         })
 
         res.status(200).json({ message: 'Password reset successfully' })
