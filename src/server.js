@@ -35,8 +35,8 @@ const START_SERVER = () => {
         res.send('Home Page')
     })
 
-    app.listen(env.APP_PORT, env.APP_HOST, () => {
-        console.log(`Hello ${env.AUTHOR}, I'm running at http://${env.APP_HOST}:${env.APP_PORT}`)
+    app.listen(env.PORT, env.HOST, () => {
+        console.log(`Hello ${env.AUTHOR}, I'm running at http://${env.HOST}:${env.PORT}`)
     })
 
     app.use('/role', authenticateToken, roleRouter)
