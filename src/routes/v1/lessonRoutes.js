@@ -7,6 +7,7 @@ import {
     getLessonByCourseSlug,
     getLessonById,
     getLessonBySlug,
+    getTotalLessonNumber,
     updateLesson,
 } from '~/controllers/lessonController'
 import { authenticateToken } from '~/middlewares/authenticateToken'
@@ -18,6 +19,7 @@ lessonRouter.get('/id/:id', getLessonById)
 lessonRouter.get('/slug/:slug', getLessonBySlug)
 lessonRouter.get('/:courseName', getLessonByCourseSlug)
 lessonRouter.get('/getLesson/:courseId/:chapterId', authenticateToken, getCurrentLessonOrder)
+lessonRouter.get('/totalLesson/:courseId', getTotalLessonNumber)
 
 lessonRouter.post('/addNewLesson', authenticateToken, addNewLesson)
 lessonRouter.put('/updateLesson', authenticateToken, updateLesson)

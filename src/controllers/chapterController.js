@@ -121,7 +121,7 @@ export const updateChapter = async (req, res) => {
             })
         }
 
-        await chapterModel.findByIdAndUpdate(req.params.id, chapter)
+        await chapterModel.findByIdAndUpdate(req.body._id, chapter)
 
         res.status(200).json({
             message: 'Update chapter successfully',

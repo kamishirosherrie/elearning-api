@@ -13,6 +13,7 @@ export const getAllLessons = async (req, res) => {
                 },
             })
             .sort({ order: 1 })
+            .lean()
         res.status(200).json({
             message: 'Get lessons successfully',
             lessons,
@@ -27,12 +28,15 @@ export const getAllLessons = async (req, res) => {
 
 export const getLessonById = async (req, res) => {
     try {
-        const lesson = await lessonModel.findById(req.params.id).populate({
-            path: 'chapterId',
-            populate: {
-                path: 'courseId',
-            },
-        })
+        const lesson = await lessonModel
+            .findById(req.params.id)
+            .populate({
+                path: 'chapterId',
+                populate: {
+                    path: 'courseId',
+                },
+            })
+            .lean()
         if (!lesson) {
             return res.status(400).json({
                 message: 'Lesson not found',
@@ -53,12 +57,15 @@ export const getLessonById = async (req, res) => {
 
 export const getLessonBySlug = async (req, res) => {
     try {
-        const lesson = await lessonModel.findOne({ slug: req.params.slug }).populate({
-            path: 'chapterId',
-            populate: {
-                path: 'courseId',
-            },
-        })
+        const lesson = await lessonModel
+            .findOne({ slug: req.params.slug })
+            .populate({
+                path: 'chapterId',
+                populate: {
+                    path: 'courseId',
+                },
+            })
+            .lean()
         if (!lesson) {
             return res.status(400).json({
                 message: 'Lesson not found',
@@ -79,7 +86,7 @@ export const getLessonBySlug = async (req, res) => {
 
 export const getLessonByCourseSlug = async (req, res) => {
     try {
-        const course = await courseModel.findOne({ slug: req.params.courseName })
+        const course = await courseModel.findOne({ slug: req.params.courseName }).lean()
         if (!course) {
             return res.status(400).json({
                 message: 'Course not found',
@@ -140,10 +147,12 @@ export const getCurrentLessonOrder = async (req, res) => {
     try {
         const { courseId, chapterId } = req.params
 
-        const chapter = await chapterModel.findOne({
-            _id: chapterId,
-            courseId: courseId,
-        })
+        const chapter = await chapterModel
+            .findOne({
+                _id: chapterId,
+                courseId: courseId,
+            })
+            .lean()
 
         if (!chapter) {
             return res.status(400).json({
@@ -160,6 +169,38 @@ export const getCurrentLessonOrder = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: 'Get current lesson order failed',
+            error: error.message,
+        })
+    }
+}
+
+export const getTotalLessonNumber = async (req, res) => {
+    try {
+        const courseId = req.params.courseId
+
+        if (!courseId) {
+            return res.status(400).json({
+                message: 'CourseId is required',
+            })
+        }
+
+        const chapters = await chapterModel.find({ courseId }).select('_id').lean()
+        if (!chapters || chapters.length === 0) {
+            return res.status(404).json({
+                message: 'No chapters found for this course',
+            })
+        }
+
+        const chapterIds = chapters.map((chapter) => chapter._id)
+        const totalLesson = await lessonModel.countDocuments({ chapterId: { $in: chapterIds } })
+
+        res.status(200).json({
+            message: 'Get total lesson number successfully',
+            totalLesson,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get total lesson number failed',
             error: error.message,
         })
     }
@@ -206,32 +247,17 @@ export const addNewLesson = async (req, res) => {
 
 export const updateLesson = async (req, res) => {
     try {
-        const lesson = await lessonModel.findOne({ slug: req.body.slug })
+        const lesson = await lessonModel.findByIdAndUpdate(req.body._id, req.body, { new: true, runValidators: true })
+
         if (!lesson) {
             return res.status(400).json({
                 message: 'Lesson not found',
             })
         }
 
-        const updatedLesson = await lessonModel.findByIdAndUpdate(
-            lesson._id,
-            {
-                title: req.body.title,
-                content: req.body.content,
-                chapterId: req.body.chapterId,
-                order: req.body.order,
-            },
-            {
-                new: true,
-                runValidators: true,
-            },
-        )
-
-        console.log(updatedLesson)
-
         res.status(200).json({
             message: 'Update lesson successfully',
-            updatedLesson,
+            lesson,
         })
     } catch (error) {
         res.status(500).json({
