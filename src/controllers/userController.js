@@ -104,6 +104,29 @@ export const updateUserInfo = async (req, res) => {
     }
 }
 
+export const updateUserProfile = async (req, res) => {
+    try {
+        const user = req.body
+
+        const existingUser = await userModel.findById(user._id).populate('roleId')
+        if (!existingUser) {
+            return res.status(404).json({ message: 'User not found' })
+        }
+
+        const isUserNameExist = await userModel.findOne({ userName: user.userName, _id: { $ne: user._id } })
+        const isEmailExist = await userModel.findOne({ email: user.email, _id: { $ne: user._id } })
+
+        if (isUserNameExist) return res.status(400).json({ message: 'User name already exists' })
+        if (isEmailExist) return res.status(400).json({ message: 'Email already exists' })
+
+        const updatedUser = await userModel.findByIdAndUpdate(user._id, { user }, { new: true, runValidators: true })
+
+        return res.status(200).json({ message: 'Update user successfully', user: updatedUser })
+    } catch (error) {
+        res.status(500).json({ message: 'Update user failed', error: error.message })
+    }
+}
+
 export const deleteUser = async (req, res) => {
     try {
         const user = await userModel.findOneAndUpdate(

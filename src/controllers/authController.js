@@ -54,7 +54,7 @@ export const socialLogin = async (req, res) => {
                 roleId: role._id,
             })
 
-            await sendEmail(newUser.email, 'Register successfully', 'Welcome to E-Learning Website!')
+            await sendEmail(user.email, 'Register successfully', 'Welcome to E-Learning Website!')
         }
 
         const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
