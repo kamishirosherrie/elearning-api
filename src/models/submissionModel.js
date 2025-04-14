@@ -7,8 +7,8 @@ const submissionSchema = new mongoose.Schema(
         quizzeId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Quizzes' },
         answers: [
             {
+                text: { type: String, default: '' },
                 questionId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Questions' },
-                answerId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Answers' },
                 isCorrect: { type: Boolean, required: true },
             },
         ],
