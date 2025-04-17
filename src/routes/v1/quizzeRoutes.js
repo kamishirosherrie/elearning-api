@@ -5,7 +5,7 @@ import {
     getAllQuizze,
     getQuizzeByLessonSlug,
     getQuizzeBySlug,
-    getQuizzesWithQuestions,
+    getQuizzeByType,
 } from '~/controllers/quizzeController'
 
 const quizzeRouter = express.Router()
@@ -13,7 +13,7 @@ const quizzeRouter = express.Router()
 quizzeRouter.get('/', getAllQuizze)
 quizzeRouter.get('/getQuizzeBySlug/:slug', getQuizzeBySlug)
 quizzeRouter.get('/getQuizzeByLessonSlug/:lessonSlug', getQuizzeByLessonSlug)
-quizzeRouter.get('/getQuizzesWithQuestions', getQuizzesWithQuestions)
+quizzeRouter.get('/getQuizzeByType/:type', getQuizzeByType)
 quizzeRouter.post('/addNewQuizze', addNewQuizze)
 quizzeRouter.delete('/deleteQuizze/:id', deleteQuizze)
 

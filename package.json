@@ -1,9 +1,9 @@
 {
-    "name": "nodejs-expressjs-mongodb-base-project",
+    "name": "elearning-api",
     "private": true,
     "version": "1.0.0",
-    "author": "TrungQuanDev - Một Lập Trình Viên",
-    "description": "https://youtube.com/@trungquandev",
+    "author": "Sherrie",
+    "description": "",
     "engines": {
         "node": ">=18.x"
     },
@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "@babel/runtime": "^7.22.10",
+        "axios": "^1.8.4",
         "bcrypt": "^5.1.1",
         "body-parser": "^1.20.3",
         "cookie-parser": "^1.4.7",

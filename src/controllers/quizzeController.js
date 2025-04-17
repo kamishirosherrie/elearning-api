@@ -3,7 +3,21 @@ import { quizzeModel } from '~/models/quizzeModel'
 
 export const getAllQuizze = async (req, res) => {
     try {
-        const quizzes = await quizzeModel.find()
+        const quizzes = await quizzeModel
+            .find()
+            .populate({
+                path: 'lessonId',
+                select: 'title',
+                populate: {
+                    path: 'chapterId',
+                    select: 'title',
+                    populate: {
+                        path: 'courseId',
+                        select: 'title',
+                    },
+                },
+            })
+            .lean()
         res.status(200).json({
             message: 'Get all quizzes successfully',
             quizzes,
@@ -11,6 +25,33 @@ export const getAllQuizze = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: 'Get all quizzes failed',
+            error: error.message,
+        })
+    }
+}
+
+export const getQuizzeByType = async (req, res) => {
+    try {
+        const { type } = req.params
+        if (!['lesson', 'entrytest', 'testpractice'].includes(type)) {
+            return res.status(400).json({
+                message: 'Type is not valid',
+            })
+        }
+        const quizzes = await quizzeModel.find({ type: type })
+        if (!quizzes) {
+            return res.status(400).json({
+                message: 'Quizzes not found',
+            })
+        }
+
+        res.status(200).json({
+            message: 'Get quizzes by type successfully',
+            quizzes,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get quizzes by type failed',
             error: error.message,
         })
     }
@@ -63,51 +104,8 @@ export const getQuizzeByLessonSlug = async (req, res) => {
     }
 }
 
-export const getQuizzesWithQuestions = async (req, res) => {
-    try {
-        const quizzesWithQuestons = await quizzeModel.aggregate([
-            {
-                $lookup: {
-                    from: 'Questions',
-                    localField: '_id',
-                    foreignField: 'quizzeId',
-                    as: 'questions',
-                },
-            },
-            {
-                $lookup: {
-                    from: 'Lessons',
-                    localField: 'lessonId',
-                    foreignField: '_id',
-                    as: 'lesson',
-                },
-            },
-            {
-                $unwind: '$lesson',
-            },
-        ])
-
-        res.status(200).json({
-            message: 'Get quizzes with questions successfully',
-            quizzesWithQuestons,
-        })
-    } catch (error) {
-        res.status(500).json({
-            message: 'Get quizzes with questions failed',
-            error: error.message,
-        })
-    }
-}
-
 export const addNewQuizze = async (req, res) => {
     try {
-        const lesson = await lessonModel.findOne({ title: req.body.lessonName })
-        if (!lesson) {
-            return res.status(400).json({
-                message: 'Lesson not found',
-            })
-        }
-
         const quizze = req.body
         if (!quizze.title) {
             return res.status(400).json({
@@ -115,13 +113,27 @@ export const addNewQuizze = async (req, res) => {
             })
         }
 
-        const newQuizze = new quizzeModel({ ...quizze, lessonId: lesson._id })
-        await newQuizze.save()
-
-        res.status(200).json({
-            message: 'Add quizze successfully',
-            newQuizze,
-        })
+        if (quizze.type === 'lesson') {
+            const lesson = await lessonModel.findOne({ title: req.body.lessonName })
+            if (!lesson) {
+                return res.status(400).json({
+                    message: 'Lesson not found',
+                })
+            }
+            const newQuizze = new quizzeModel({ ...quizze, lessonId: lesson._id })
+            await newQuizze.save()
+            res.status(200).json({
+                message: 'Add quizze successfully',
+                newQuizze,
+            })
+        } else {
+            const newQuizze = new quizzeModel({ ...quizze, lessonId: null })
+            await newQuizze.save()
+            res.status(200).json({
+                message: 'Add quizze successfully',
+                newQuizze,
+            })
+        }
     } catch (error) {
         res.status(500).json({
             message: 'Add quizze failed',

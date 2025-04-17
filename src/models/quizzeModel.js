@@ -15,7 +15,8 @@ const quizzeSchema = new mongoose.Schema(
             forceIdSlug: false,
             slugOn: { updateOne: true, save: true },
         },
-        lessonId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Lessons' },
+        lessonId: { type: mongoose.Schema.Types.ObjectId, default: null, ref: 'Lessons' },
+        type: { type: String, enum: ['lesson', 'entrytest', 'testpractice'], default: 'lesson' },
     },
     {
         timestamps: true,

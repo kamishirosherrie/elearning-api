@@ -3,6 +3,7 @@ import { questionTypeModel } from '~/models/questionTypeModel'
 import { quizzeModel } from '~/models/quizzeModel'
 import { submissionModel } from '~/models/submissionModel'
 import { userModel } from '~/models/userModel'
+import { evaluateWriting } from '~/utils/openai'
 
 const formatTime = (time) => {
     const hours = Math.floor(time / 3600)
@@ -120,6 +121,41 @@ export const submitQuiz = async (req, res) => {
             message: 'Submit quiz failed',
             error: error.message,
         })
+    }
+}
+
+export const submitWriting = async (req, res) => {
+    try {
+        const { userId, quizzeId, answers, timeTaken } = req.body
+
+        if (!answers || !Array.isArray(answers) || answers.length === 0) {
+            return res.status(400).json({ message: 'Answers are required.' })
+        }
+
+        const aiResult = await evaluateWriting(answers)
+        const submission = new submissionModel({
+            userId,
+            quizzeId,
+            answers: answers.map((ans, index) => ({
+                questionId: ans.questionId,
+                text: ans.text,
+                aiScore: aiResult.results[index].score,
+                aiFeedback: aiResult.results[index].feedback,
+                isCorrect: aiResult.results[index].score >= 5,
+            })),
+            score: aiResult.totalScore,
+            timeTaken: timeTaken || 0,
+        })
+
+        await submission.save()
+
+        res.status(201).json({
+            message: 'Writing submission successful',
+            submission,
+        })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ message: 'Failed to submit writing', error: err.message })
     }
 }
 
