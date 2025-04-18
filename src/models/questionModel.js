@@ -6,6 +6,8 @@ const questionSchema = new mongoose.Schema(
         questionTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'QuestionTypes', required: true },
         quizzeId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Quizzes' },
         answer: [{ isCorrect: { type: Boolean, required: true }, text: { type: String, required: true } }],
+        part: { type: String, default: '' },
+        context: { type: String, default: '' },
     },
     {
         timestamps: true,

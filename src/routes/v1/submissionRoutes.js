@@ -1,19 +1,22 @@
 import express from 'express'
 import {
+    getGlobalRanking,
     getSubmissionById,
     getSubmissions,
     getSubmissionsByUserId,
     submitQuiz,
     submitWriting,
 } from '~/controllers/submissionController'
+import { authenticateToken } from '~/middlewares/authenticateToken'
 
 const submissionRoutes = express.Router()
 
-submissionRoutes.post('/submit', submitQuiz)
-submissionRoutes.post('/submit/writing', submitWriting)
+submissionRoutes.post('/submit', authenticateToken, submitQuiz)
+submissionRoutes.post('/submit/writing', authenticateToken, submitWriting)
 
-submissionRoutes.get('/getSubmission', getSubmissions)
-submissionRoutes.get('/getSubmission/:id', getSubmissionById)
-submissionRoutes.get('/getSubmissions/:userId', getSubmissionsByUserId)
+submissionRoutes.get('/getSubmission', authenticateToken, getSubmissions)
+submissionRoutes.get('/getSubmission/:id', authenticateToken, getSubmissionById)
+submissionRoutes.get('/getSubmissions/:userId', authenticateToken, getSubmissionsByUserId)
+submissionRoutes.get('/ranking', getGlobalRanking)
 
 export { submissionRoutes }

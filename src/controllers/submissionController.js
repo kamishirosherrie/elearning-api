@@ -4,6 +4,7 @@ import { quizzeModel } from '~/models/quizzeModel'
 import { submissionModel } from '~/models/submissionModel'
 import { userModel } from '~/models/userModel'
 import { evaluateWriting } from '~/utils/openai'
+import { getRankTitle } from '~/utils/rankTitle'
 
 const formatTime = (time) => {
     const hours = Math.floor(time / 3600)
@@ -247,6 +248,59 @@ export const getSubmissionById = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: 'Get submission failed',
+            error: error.message,
+        })
+    }
+}
+
+export const getGlobalRanking = async (req, res) => {
+    try {
+        const submissions = await submissionModel.aggregate([
+            {
+                $group: {
+                    _id: { userId: '$userId', quizzeId: '$quizzeId' },
+                    bestScore: { $max: '$score' },
+                },
+            },
+            {
+                $group: {
+                    _id: '$_id.userId',
+                    totalScore: { $sum: '$bestScore' },
+                    quizzeCount: { $sum: 1 },
+                },
+            },
+            {
+                $lookup: {
+                    from: 'Users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'user',
+                },
+            },
+            { $unwind: '$user' },
+            {
+                $sort: {
+                    totalScore: -1,
+                    quizzeCount: -1,
+                },
+            },
+            {
+                $limit: 50,
+            },
+        ])
+
+        const rankingWithRank = submissions.map((submission, index) => ({
+            ...submission,
+            rankTitle: getRankTitle(submission.totalScore),
+        }))
+
+        res.status(200).json({
+            message: 'Get global ranking successfully',
+            rankingWithRank,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get global ranking failed',
             error: error.message,
         })
     }

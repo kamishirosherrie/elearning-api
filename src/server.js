@@ -57,7 +57,7 @@ const START_SERVER = () => {
 
     app.use('/questionType', authenticateToken, questionTypeRouter)
 
-    app.use('/submission', authenticateToken, submissionRoutes)
+    app.use('/submission', submissionRoutes)
 }
 
 ;(async () => {
