@@ -78,23 +78,28 @@ export const addUser = async (req, res) => {
 
 export const updateUserInfo = async (req, res) => {
     try {
-        const user = req.body
+        const { _id, userName, email, passWord, ...rest } = req.body
 
-        const existingUser = await userModel.findById(user._id)
+        const existingUser = await userModel.findById(_id)
         if (!existingUser) {
             return res.status(404).json({ message: 'User not found' })
         }
 
-        const isUserNameExist = await userModel.findOne({ userName: user.userName, _id: { $ne: user._id } })
-        const isEmailExist = await userModel.findOne({ email: user.email, _id: { $ne: user._id } })
+        const isUserNameExist = await userModel.findOne({ userName: userName, _id: { $ne: _id } })
+        const isEmailExist = await userModel.findOne({ email: email, _id: { $ne: _id } })
 
         if (isUserNameExist) return res.status(400).json({ message: 'User name already exists' })
         if (isEmailExist) return res.status(400).json({ message: 'Email already exists' })
 
-        const hashedPassword = await bcrypt.hash(user.passWord, 10)
+        const hashedPassword = await bcrypt.hash(passWord, 10)
         const updatedUser = await userModel.findByIdAndUpdate(
-            user._id,
-            { ...user, passWord: hashedPassword },
+            _id,
+            {
+                userName,
+                email,
+                passWord: hashedPassword,
+                ...rest,
+            },
             { new: true, runValidators: true },
         )
 
@@ -106,20 +111,28 @@ export const updateUserInfo = async (req, res) => {
 
 export const updateUserProfile = async (req, res) => {
     try {
-        const user = req.body
+        const { _id, userName, email, ...rest } = req.body
 
-        const existingUser = await userModel.findById(user._id).populate('roleId')
+        const existingUser = await userModel.findById(_id).populate('roleId')
         if (!existingUser) {
             return res.status(404).json({ message: 'User not found' })
         }
 
-        const isUserNameExist = await userModel.findOne({ userName: user.userName, _id: { $ne: user._id } })
-        const isEmailExist = await userModel.findOne({ email: user.email, _id: { $ne: user._id } })
+        const isUserNameExist = await userModel.findOne({ userName: userName, _id: { $ne: _id } })
+        const isEmailExist = await userModel.findOne({ email: email, _id: { $ne: _id } })
 
         if (isUserNameExist) return res.status(400).json({ message: 'User name already exists' })
         if (isEmailExist) return res.status(400).json({ message: 'Email already exists' })
 
-        const updatedUser = await userModel.findByIdAndUpdate(user._id, { user }, { new: true, runValidators: true })
+        const updatedUser = await userModel.findByIdAndUpdate(
+            _id,
+            {
+                userName,
+                email,
+                ...rest,
+            },
+            { new: true, runValidators: true },
+        )
 
         return res.status(200).json({ message: 'Update user successfully', user: updatedUser })
     } catch (error) {

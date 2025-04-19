@@ -1,5 +1,5 @@
 export const getRankTitle = (score) => {
-    if (score <= 149) {
+    if (score <= 5) {
         return '🐣 Tân Binh'
     } else if (score > 149 && score <= 299) {
         return '📘 Học Sinh Cần Cù'
