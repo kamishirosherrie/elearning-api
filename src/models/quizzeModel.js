@@ -17,6 +17,7 @@ const quizzeSchema = new mongoose.Schema(
         },
         lessonId: { type: mongoose.Schema.Types.ObjectId, default: null, ref: 'Lessons' },
         type: { type: String, enum: ['lesson', 'entrytest', 'testpractice'], default: 'lesson' },
+        context: { type: String, required: false, default: '' },
         testSetId: { type: mongoose.Schema.Types.ObjectId, ref: 'TestSets' },
     },
     {

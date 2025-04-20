@@ -38,3 +38,8 @@ Return your response in JSON format as shown below:
 }
 `
 }
+
+export const toeicSpeakingPrompt = () =>
+    `Please act like a natural human in a conversation.
+Respond in 1–3 short sentences.
+Avoid repeating user content. Keep it casual and interactive.`
