@@ -5,17 +5,18 @@ import { env } from '~/config/environment'
 import { roleModel } from '~/models/roleModel'
 import { userModel } from '~/models/userModel'
 import { sendEmail } from '~/services/mailService'
+import { changePassWordValidation, registerValidation } from '~/validations/inputValidation'
 
 export const login = async (req, res) => {
     try {
         const { identifier, passWord } = req.body
         const user = await userModel.findOne({ $or: [{ userName: identifier }, { email: identifier }] })
         if (!user) {
-            return res.status(400).json({ message: 'Login failed! User not found' })
+            return res.status(400).json({ message: 'Đăng nhập thất bại! Tài khoản không tồn tại' })
         }
         const isMatch = await bcrypt.compare(passWord, user.passWord)
         if (!isMatch) {
-            return res.status(400).json({ message: 'Login failed! Wrong password' })
+            return res.status(400).json({ message: 'Đăng nhập thất bại! Sai mật khẩu' })
         }
         const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
         res.cookie('token', token, {
@@ -25,9 +26,9 @@ export const login = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
-        res.status(200).json({ message: 'Login successfully', user })
+        res.status(200).json({ message: 'Đăng nhập thành công!', user })
     } catch (error) {
-        res.status(500).json({ message: 'Login failed', error: error.message })
+        res.status(500).json({ message: 'Đăng nhập thất bại! Vui lòng thử lại sau', error: error.message })
     }
 }
 
@@ -54,7 +55,7 @@ export const socialLogin = async (req, res) => {
                 roleId: role._id,
             })
 
-            await sendEmail(user.email, 'Register successfully', 'Welcome to E-Learning Website!')
+            await sendEmail(user.email, 'Đăng kí thành công', 'Welcome to E-Learning Website!')
         }
 
         const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
@@ -65,9 +66,9 @@ export const socialLogin = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
-        res.status(200).json({ message: 'Login successfully', token, user })
+        res.status(200).json({ message: 'Đăng nhập thành công!', token, user })
     } catch (error) {
-        res.status(500).json({ message: 'Login failed', error: error.message })
+        res.status(500).json({ message: 'Đăng nhập thất bại! Vui lòng thử lại sau.', error: error.message })
     }
 }
 
@@ -78,9 +79,9 @@ export const logout = async (req, res) => {
             secure: env.NODE_ENV === 'production',
             sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
         })
-        res.status(200).json({ message: 'Logout successfully' })
+        res.status(200).json({ message: 'Đăng xuất thành công!' })
     } catch (error) {
-        res.status(500).json({ message: 'Logout failed', error: error.message })
+        res.status(500).json({ message: 'Đăng xuất thất bại! Vui lòng thử lại sau.', error: error.message })
     }
 }
 
@@ -93,12 +94,16 @@ export const register = async (req, res) => {
     }
 
     const user = req.body
+    const { isValid, message } = registerValidation(user)
+    if (!isValid) {
+        return res.status(400).json({ message })
+    }
     const isUserExist = await userModel.findOne({
         $or: [{ userName: user.userName }, { email: user.email }],
     })
     if (isUserExist) {
         return res.status(400).json({
-            message: 'User already exists',
+            message: 'Tài khoản đã tồn tại!',
         })
     }
     try {
@@ -114,10 +119,10 @@ export const register = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
-        await sendEmail(newUser.email, 'Register successfully', 'Welcome to E-Learning Website!')
-        res.status(201).json({ message: 'Register successfully', data: newUser })
+        await sendEmail(newUser.email, 'Đăng kí thành công!', 'Welcome to E-Learning Website!')
+        res.status(201).json({ message: 'Đăng kí thành công!', data: newUser })
     } catch (error) {
-        res.status(500).json({ message: 'Register failed', error: error.message })
+        res.status(500).json({ message: 'Đăng kí thất bại', error: error.message })
     }
 }
 
@@ -127,37 +132,43 @@ export const changePassWord = async (req, res) => {
 
         const user = await userModel.findById(userId)
         if (!user) {
-            return res.status(400).json({ message: 'User not found' })
+            return res.status(400).json({ message: 'Không tìm thấy tài khoản' })
         }
 
         const isMatch = await bcrypt.compare(currentPassWord, user.passWord)
         if (!isMatch) {
-            return res.status(400).json({ message: 'Wrong password' })
+            return res.status(400).json({ message: 'Sai mật khẩu!' })
         }
-        if (newPassWord !== confirmPassWord) {
-            return res.status(400).json({ message: 'New password and confirm password do not match' })
+
+        const { isValid, message } = changePassWordValidation({
+            currentPassWord,
+            newPassWord,
+            confirmPassWord,
+        })
+        if (!isValid) {
+            return res.status(400).json({ message })
         }
 
         const hashedPassword = await bcrypt.hash(newPassWord, 10)
         user.passWord = hashedPassword
         await user.save()
 
-        res.status(200).json({ message: 'Change password successfully' })
+        res.status(200).json({ message: 'Đổi mật khẩu thành công!' })
     } catch (error) {
-        res.status(500).json({ message: 'Change password failed', error: error.message })
+        res.status(500).json({ message: 'Đổi mật khẩu thất bại!', error: error.message })
     }
 }
 
 export const forgotPassWord = async (req, res) => {
     const { email } = req.body
     if (!email) {
-        return res.status(400).json({ message: 'Email is required' })
+        return res.status(400).json({ message: 'Email không được bỏ trống' })
     }
 
     try {
         const user = await userModel.findOne({ email: email })
         if (!user) {
-            return res.status(400).json({ message: 'User not found' })
+            return res.status(400).json({ message: 'Không tìm thấy tài khoản' })
         }
 
         const otp = String(Math.floor(100000 + Math.random() * 900000))
@@ -173,9 +184,9 @@ export const forgotPassWord = async (req, res) => {
             `Your OTP is ${otp}. Using this OTP to reset your password. This OTP will expire in 5 minutes.`,
         )
 
-        res.status(200).json({ message: 'OTP sent to your email' })
+        res.status(200).json({ message: 'OTP đã được gửi tới email của bạn' })
     } catch (error) {
-        res.status(500).json({ message: 'Forgot password failed', error: error.message })
+        res.status(500).json({ message: 'Thất bại!', error: error.message })
     }
 }
 
@@ -188,13 +199,13 @@ export const verifyOTP = async (req, res) => {
     try {
         const user = await userModel.findOne({ email: email })
         if (!user) {
-            return res.status(400).json({ message: 'User not found' })
+            return res.status(400).json({ message: 'Không tìm thấy tài khoản' })
         }
         if (user.resetOtp === '' || user.resetOtp !== otp) {
-            return res.status(400).json({ message: 'Invalid OTP' })
+            return res.status(400).json({ message: 'OTP không hợp lệ' })
         }
         if (user.resetOtpExpireAt < Date.now()) {
-            return res.status(400).json({ message: 'OTP expired' })
+            return res.status(400).json({ message: 'OTP đã hết hạn' })
         }
 
         user.isOtpVerified = true
@@ -210,9 +221,9 @@ export const verifyOTP = async (req, res) => {
             maxAge: 5 * 60 * 1000,
         })
 
-        return res.status(200).json({ message: 'OTP verified' })
+        return res.status(200).json({ message: 'Xác thực OTP thành công!' })
     } catch (error) {
-        res.status(500).json({ message: 'Verify OTP failed', error: error.message })
+        res.status(500).json({ message: 'Xác thực OTP thất bại', error: error.message })
     }
 }
 
@@ -224,7 +235,7 @@ export const resetPassWord = async (req, res) => {
     }
 
     if (!newPassWord || !confirmPassWord) {
-        return res.status(400).json({ message: 'Reset token, new password and confirm password are required' })
+        return res.status(400).json({ message: 'Mật khẩu mới và xác nhận mật khẩu không được bỏ trống!' })
     }
 
     try {
@@ -233,15 +244,15 @@ export const resetPassWord = async (req, res) => {
 
         const user = await userModel.findOne({ email: email, isOtpVerified: true })
         if (!user) {
-            return res.status(400).json({ message: 'User not found or OTP not verified' })
+            return res.status(400).json({ message: 'Không tìm thấy tài khoản hoặc OTP chưa được xác thực!' })
         }
 
         if (newPassWord === '' || confirmPassWord === '') {
-            return res.status(400).json({ message: 'New password and confirm password are required' })
+            return res.status(400).json({ message: 'Mật khẩu mới và xác nhận mật khẩu không được bỏ trống!' })
         }
 
         if (newPassWord !== confirmPassWord) {
-            return res.status(400).json({ message: 'New password and confirm password do not match' })
+            return res.status(400).json({ message: 'Mật khẩu mới không khớp!' })
         }
 
         const hashedPassword = await bcrypt.hash(newPassWord, 10)
@@ -256,8 +267,8 @@ export const resetPassWord = async (req, res) => {
             sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
         })
 
-        res.status(200).json({ message: 'Password reset successfully' })
+        res.status(200).json({ message: 'Đặt lại mật khẩu thành công!' })
     } catch (error) {
-        res.status(500).json({ message: 'Reset password failed', error: error.message })
+        res.status(500).json({ message: 'Đặt lại mật khẩu thất bại', error: error.message })
     }
 }

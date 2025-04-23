@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import { courseEnrollmentModel } from '~/models/courseEnrollmentModel'
 import { userModel } from '~/models/userModel'
+import { updateProfileValidation } from '~/validations/inputValidation'
 
 export const getUsers = async (req, res) => {
     try {
@@ -111,24 +112,23 @@ export const updateUserInfo = async (req, res) => {
 
 export const updateUserProfile = async (req, res) => {
     try {
-        const { _id, userName, email, ...rest } = req.body
+        const { _id, ...rest } = req.body
 
         const existingUser = await userModel.findById(_id).populate('roleId')
         if (!existingUser) {
             return res.status(404).json({ message: 'User not found' })
         }
-
-        const isUserNameExist = await userModel.findOne({ userName: userName, _id: { $ne: _id } })
-        const isEmailExist = await userModel.findOne({ email: email, _id: { $ne: _id } })
-
-        if (isUserNameExist) return res.status(400).json({ message: 'User name already exists' })
-        if (isEmailExist) return res.status(400).json({ message: 'Email already exists' })
-
+        const { isValid, message } = updateProfileValidation({
+            fullName: rest.fullName,
+            phoneNumber: rest.phoneNumber,
+            birthday: rest.birthday,
+        })
+        if (!isValid) {
+            return res.status(400).json({ message })
+        }
         const updatedUser = await userModel.findByIdAndUpdate(
             _id,
             {
-                userName,
-                email,
                 ...rest,
             },
             { new: true, runValidators: true },

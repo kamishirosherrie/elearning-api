@@ -3,7 +3,7 @@ import { testSetModel } from '~/models/testSetModel'
 
 export const getAllTestSet = async (req, res) => {
     try {
-        const { userId } = req.user.userId
+        const { userId } = req.user
 
         const submission = await submissionModel.find({ userId: userId })
 

@@ -30,14 +30,14 @@ export const submitQuiz = async (req, res) => {
             return res.status(400).json({ message: 'User ID is required' })
         }
 
-        if (!Array.isArray(answers)) {
-            return res.status(400).json({ message: 'Answers are required' })
+        if (!Array.isArray(answers) || answers.length === 0) {
+            return res.status(400).json({ message: 'You must answer at least one question.' })
         }
 
         const quizze = await quizzeModel.findById(quizzeId).lean()
         if (!quizze) {
             return res.status(400).json({
-                message: 'Quizze not found',
+                message: 'Quiz not found',
             })
         }
 
@@ -54,7 +54,7 @@ export const submitQuiz = async (req, res) => {
 
         if (!questions || questions.length === 0) {
             return res.status(400).json({
-                message: 'Question not found',
+                message: 'Questions not found',
             })
         }
 
@@ -68,7 +68,7 @@ export const submitQuiz = async (req, res) => {
         let score = 0
         const submittedAnswers = []
         for (const answer of answers) {
-            const question = questionMap.get(answer.questionId.toString())
+            const question = questionMap.get(answer?.questionId.toString())
 
             if (!question) continue
 
@@ -76,7 +76,7 @@ export const submitQuiz = async (req, res) => {
 
             switch (question.questionTypeId.toString()) {
                 case questionTypes[0]._id.toString():
-                    const correctAnswer = question.answer.find((a) => a.isCorrect === true)
+                    const correctAnswer = question.answer?.find((a) => a.isCorrect === true)
 
                     if (correctAnswer && answer.text === correctAnswer.text) {
                         score += 1
@@ -84,14 +84,14 @@ export const submitQuiz = async (req, res) => {
                     }
                     break
                 case questionTypes[2]._id.toString():
-                    if (question.answer.text.includes(answer.text)) {
+                    if (question.answer?.text?.includes(answer.text)) {
                         score += 1
                         isCorrect = true
                     }
                     break
                 case questionTypes[3]._id.toString():
-                    const userAnswer = answer.text.trim().toLowerCase()
-                    const correctAnswers = question.answer.map((ans) => ans.text.trim().toLowerCase())
+                    const userAnswer = answer.text?.trim().toLowerCase()
+                    const correctAnswers = question.answer?.map((ans) => ans.text.trim().toLowerCase())
                     if (correctAnswers.includes(userAnswer)) {
                         score += 1
                         isCorrect = true

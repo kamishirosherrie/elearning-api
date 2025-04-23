@@ -125,14 +125,14 @@ export const addCourseEnrollment = async (req, res) => {
         const { courseId, userId } = req.body
         if (!courseId || !userId) {
             return res.status(400).json({
-                message: 'Course ID and User ID are required',
+                message: 'Id khóa học và Id người dùng là bắt buộc',
             })
         }
 
         const courseEnrollment = await courseEnrollmentModel.findOne({ courseId, userId })
         if (courseEnrollment) {
             return res.status(400).json({
-                message: 'You have already enrolled this course',
+                message: 'Bạn đã đăng kí khóa học này rồi',
             })
         }
 
@@ -140,12 +140,12 @@ export const addCourseEnrollment = async (req, res) => {
         await newCourseEnrollment.save()
 
         res.status(201).json({
-            message: 'Add new course enrollment successfully',
+            message: 'Đăng kí khóa học thành công',
             courseEnrollment: newCourseEnrollment,
         })
     } catch (error) {
         res.status(500).json({
-            message: 'Add new course enrollment failed',
+            message: 'Đăng kí khóa học thất bại',
             error: error.message,
         })
     }
