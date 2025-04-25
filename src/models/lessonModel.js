@@ -16,7 +16,6 @@ const lessonSchema = new mongoose.Schema(
             slugOn: { updateOne: true, save: true },
         },
         chapterId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Chapters' },
-        userId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Users' },
     },
     {
         timestamps: true,

@@ -16,6 +16,7 @@ import { submissionRoutes } from './routes/v1/submissionRoutes'
 import { authenticateToken } from './middlewares/authenticateToken'
 import { chapterRouter } from './routes/v1/chapterRoutes'
 import { testSetRouter } from './routes/v1/testSetRouter'
+import { lessonProgressRouter } from './routes/v1/lessonProgressRouter'
 
 const START_SERVER = () => {
     const app = express()
@@ -51,6 +52,8 @@ const START_SERVER = () => {
     app.use('/chapter', authenticateToken, chapterRouter)
 
     app.use('/lesson', lessonRouter)
+
+    app.use('/progress', authenticateToken, lessonProgressRouter)
 
     app.use('/testset', authenticateToken, testSetRouter)
 

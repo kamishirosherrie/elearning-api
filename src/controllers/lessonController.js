@@ -1,6 +1,9 @@
 import { chapterModel } from '~/models/chapterModel'
 import { courseModel } from '~/models/courseModel'
 import { lessonModel } from '~/models/lessonModel'
+import { lessonProgressModel } from '~/models/lessonProgressModel'
+import { quizzeModel } from '~/models/quizzeModel'
+import { userModel } from '~/models/userModel'
 
 export const getAllLessons = async (req, res) => {
     try {
@@ -106,14 +109,6 @@ export const getLessonByCourseSlug = async (req, res) => {
                 $unwind: { path: '$lessons', preserveNullAndEmptyArrays: true },
             },
             {
-                $lookup: {
-                    from: 'Quizzes',
-                    localField: 'lessons._id',
-                    foreignField: 'lessonId',
-                    as: 'lessons.quizzes',
-                },
-            },
-            {
                 $group: {
                     _id: '$_id',
                     title: { $first: '$title' },
@@ -138,6 +133,58 @@ export const getLessonByCourseSlug = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: 'Get lesson by course slug failed',
+            error: error.message,
+        })
+    }
+}
+
+export const getLessonWithUserProgress = async (req, res) => {
+    try {
+        const { courseName } = req.params
+        const { userId } = req.user
+
+        const course = await courseModel.findOne({ slug: courseName }).lean()
+        if (!course) {
+            return res.status(404).json({ message: 'Course not found' })
+        }
+
+        const chapters = await chapterModel.find({ courseId: course._id }).sort({ order: 1 }).lean()
+
+        const chaptersWithLessons = await Promise.all(
+            chapters.map(async (chapter) => {
+                const lessons = await lessonModel.find({ chapterId: chapter._id }).sort({ order: 1 }).lean()
+
+                const lessonsWithExtras = await Promise.all(
+                    lessons.map(async (lesson) => {
+                        const [progress, quizze] = await Promise.all([
+                            lessonProgressModel.findOne({ lessonId: lesson._id, userId }).lean(),
+                            quizzeModel.findOne({ lessonId: lesson._id }).lean(),
+                        ])
+
+                        return {
+                            ...lesson,
+                            isCompleted: progress?.isCompleted || false,
+                            completedAt: progress?.updatedAt || null,
+                            quizze: quizze || null,
+                        }
+                    }),
+                )
+
+                return {
+                    ...chapter,
+                    lessons: lessonsWithExtras,
+                }
+            }),
+        )
+
+        res.status(200).json({
+            message: 'Get lessons by course slug successfully',
+            chapters: chaptersWithLessons,
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({
+            message: 'Get lessons by course slug failed',
             error: error.message,
         })
     }

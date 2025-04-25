@@ -7,6 +7,7 @@ import {
     getLessonByCourseSlug,
     getLessonById,
     getLessonBySlug,
+    getLessonWithUserProgress,
     getTotalLessonNumber,
     updateLesson,
 } from '~/controllers/lessonController'
@@ -18,6 +19,7 @@ lessonRouter.get('/', getAllLessons)
 lessonRouter.get('/id/:id', getLessonById)
 lessonRouter.get('/slug/:slug', getLessonBySlug)
 lessonRouter.get('/:courseName', getLessonByCourseSlug)
+lessonRouter.get('/getLessonWithUserProgress/:courseName', authenticateToken, getLessonWithUserProgress)
 lessonRouter.get('/getLesson/:courseId/:chapterId', authenticateToken, getCurrentLessonOrder)
 lessonRouter.get('/totalLesson/:courseId', getTotalLessonNumber)
 
