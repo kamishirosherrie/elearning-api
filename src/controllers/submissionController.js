@@ -189,6 +189,7 @@ export const getSubmissions = async (req, res) => {
 export const getSubmissionsByUserId = async (req, res) => {
     try {
         const user = await userModel.findOne({ _id: req.params.userId })
+        const { page = 1, limit = 10 } = req.query
 
         if (!user) {
             return res.status(400).json({
@@ -196,22 +197,30 @@ export const getSubmissionsByUserId = async (req, res) => {
             })
         }
 
-        const submissions = await submissionModel.find({ userId: user._id }).populate({
-            path: 'quizzeId',
-            select: 'title slug',
-            populate: {
-                path: 'lessonId',
-                select: 'title',
+        const submissions = await submissionModel
+            .find({ userId: user._id })
+            .populate({
+                path: 'quizzeId',
+                select: 'title slug',
                 populate: {
-                    path: 'chapterId',
+                    path: 'lessonId',
                     select: 'title',
                     populate: {
-                        path: 'courseId',
+                        path: 'chapterId',
                         select: 'title',
+                        populate: {
+                            path: 'courseId',
+                            select: 'title',
+                        },
                     },
                 },
-            },
-        })
+            })
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(Number(limit))
+
+        const total = await submissionModel.countDocuments({ userId: user._id })
+
         if (!submissions || submissions.length === 0) {
             return res.status(400).json({
                 message: 'Submissions not found',
@@ -226,6 +235,9 @@ export const getSubmissionsByUserId = async (req, res) => {
         res.status(200).json({
             message: 'Get submissions successfully',
             submissions: formattedSubmissions,
+            total,
+            page: Number(page),
+            totalPages: Math.ceil(total / limit),
         })
     } catch (error) {
         res.status(500).json({

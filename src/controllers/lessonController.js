@@ -158,14 +158,14 @@ export const getLessonWithUserProgress = async (req, res) => {
                     lessons.map(async (lesson) => {
                         const [progress, quizze] = await Promise.all([
                             lessonProgressModel.findOne({ lessonId: lesson._id, userId }).lean(),
-                            quizzeModel.findOne({ lessonId: lesson._id }).lean(),
+                            quizzeModel.find({ lessonId: lesson._id }).lean(),
                         ])
 
                         return {
                             ...lesson,
                             isCompleted: progress?.isCompleted || false,
                             completedAt: progress?.updatedAt || null,
-                            quizze: quizze || null,
+                            quizzes: quizze || null,
                         }
                     }),
                 )
