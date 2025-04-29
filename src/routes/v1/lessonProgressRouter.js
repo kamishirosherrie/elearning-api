@@ -1,9 +1,9 @@
 import express from 'express'
-import { getCourseProgress, markLessonCompleted } from '~/controllers/lessonProgressController'
+import { getLessonProgress, markLessonCompleted } from '~/controllers/lessonProgressController'
 
 const lessonProgressRouter = express.Router()
 
-lessonProgressRouter.get('/', getCourseProgress)
+lessonProgressRouter.get('/', getLessonProgress)
 lessonProgressRouter.put('/markLessonCompleted/:lessonId', markLessonCompleted)
 
 export { lessonProgressRouter }

@@ -15,6 +15,7 @@ const courseSchema = new mongoose.Schema(
             forceIdSlug: false,
             slugOn: { updateOne: true, save: true },
         },
+        totalLesson: { type: Number, default: 0 },
     },
     {
         timestamps: true,

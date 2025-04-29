@@ -1,57 +1,45 @@
+import { courseModel } from '~/models/courseModel'
 import { lessonModel } from '~/models/lessonModel'
 import { lessonProgressModel } from '~/models/lessonProgressModel'
 import { userModel } from '~/models/userModel'
 
-export const getCourseProgress = async (req, res) => {
+export const getLessonProgress = async (req, res) => {
     try {
         const { userId } = req.user
 
-        if (!userId) {
-            return res.status(400).json({
-                message: 'UserId is required',
-            })
+        const courses = await courseModel.find()
+
+        if (!courses || courses.length === 0) {
+            return res.status(400).json({ message: 'No courses found' })
         }
 
-        const lessons = await lessonProgressModel.aggregate([
-            {
-                $group: {
-                    _id: '$courseId',
-                    totalLessons: { $sum: 1 },
-                    lessonIds: { $push: '$_id' },
-                },
-            },
-        ])
-
-        if (!lessons || lessons.length === 0) {
-            return res.status(400).json({
-                message: 'No lessons found',
+        const courseProgressPromises = courses.map(async (course) => {
+            const completedLessons = await lessonProgressModel.countDocuments({
+                userId,
+                courseId: course._id,
+                isCompleted: true,
             })
-        }
 
-        const completedLessons = await lessonProgressModel.find({ userId, isCompleted: true }).lean()
-        const courseProgress = lessons.map((course) => {
-            const completedCount = completedLessons.filter((progress) =>
-                course.lessonIds.includes(progress.lessonId.toString()),
-            ).length
-
-            const completionPercentage = course.totalLessons > 0 ? (completedCount / course.totalLessons) * 100 : 0
+            const completionPercentage = course.totalLesson > 0 ? (completedLessons / course.totalLesson) * 100 : 0
 
             return {
-                totalLessons: course.totalLessons,
-                completedCount,
+                courseId: course._id,
+                courseTitle: course.title,
+                courseSlug: course.slug,
+                totalLessons: course.totalLesson,
+                completedLessons,
                 completionPercentage: Math.round(completionPercentage),
             }
         })
 
+        const courseProgress = await Promise.all(courseProgressPromises)
+
         res.status(200).json({
-            message: 'Get course progress successfully',
+            message: 'Course progress fetched successfully',
             courseProgress,
         })
     } catch (error) {
-        res.status(500).json({
-            message: 'Get course progress failed',
-            error: error.message,
-        })
+        res.status(500).json({ message: 'Error fetching course progress', error: error.message })
     }
 }
 
@@ -66,7 +54,12 @@ export const markLessonCompleted = async (req, res) => {
             })
         }
 
-        const lesson = await lessonModel.findById(lessonId)
+        const lesson = await lessonModel.findById(lessonId).populate({
+            path: 'chapterId',
+            populate: {
+                path: 'courseId',
+            },
+        })
         if (!lesson) {
             return res.status(400).json({
                 message: 'Lesson not found',
@@ -89,11 +82,13 @@ export const markLessonCompleted = async (req, res) => {
             lessonProgress.isCompleted = true
             lessonProgress.userId = userId
             lessonProgress.lessonId = lessonId
+            lessonProgress.courseId = lesson.chapterId.courseId._id
         } else {
             lessonProgress = new lessonProgressModel({
                 userId: userId,
                 lessonId: lessonId,
                 isCompleted: true,
+                courseId: lesson.chapterId.courseId._id,
             })
         }
 

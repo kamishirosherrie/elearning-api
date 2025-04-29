@@ -269,6 +269,16 @@ export const addNewLesson = async (req, res) => {
             })
         }
 
+        const course = await courseModel.findOne({ _id: chapter.courseId })
+        if (!course) {
+            return res.status(400).json({
+                message: 'Course not found',
+            })
+        }
+
+        course.totalLesson = (course.totalLesson || 0) + 1
+        await course.save()
+
         const lessonOrder = await lessonModel.find({ chapterId: lesson.chapterId }).countDocuments()
 
         const newLesson = new lessonModel({
