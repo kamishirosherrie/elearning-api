@@ -4,6 +4,7 @@ import {
     forgotPassWord,
     login,
     logout,
+    refreshAccessToken,
     register,
     resetPassWord,
     socialLogin,
@@ -21,5 +22,6 @@ authRouter.put('/changePassWord', authenticateToken, changePassWord)
 authRouter.post('/forgotPassWord', forgotPassWord)
 authRouter.post('/resetPassWord', resetPassWord)
 authRouter.post('/verifyOtp', verifyOTP)
+authRouter.post('/refreshToken', authenticateToken, refreshAccessToken)
 
 export { authRouter }

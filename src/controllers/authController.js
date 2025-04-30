@@ -1,11 +1,56 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { env } from '~/config/environment'
+import { refreshTokenModel } from '~/models/refreshTokenModel'
 
 import { roleModel } from '~/models/roleModel'
 import { userModel } from '~/models/userModel'
 import { sendEmail } from '~/services/mailService'
 import { changePassWordValidation, registerValidation } from '~/validations/inputValidation'
+
+const createAccessToken = (user) => {
+    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+}
+
+const createRefreshToken = (user) => {
+    return jwt.sign({ userId: user._id }, env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+}
+
+const sendRefreshToken = (res, token) => {
+    res.cookie('refreshToken', token, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+}
+
+export const refreshAccessToken = async (req, res) => {
+    const token = req.cookies.refreshToken
+    if (!token) {
+        return res.status(400).json({ message: 'Refresh token is required' })
+    }
+
+    try {
+        const decoded = jwt.verify(token, env.REFRESH_TOKEN_SECRET)
+        const storedToken = await refreshTokenModel.findOne({ userId: decoded.userId, refreshToken: token })
+
+        if (!storedToken) {
+            return res.status(400).json({ message: 'Refresh token is invalid' })
+        }
+
+        const user = await userModel.findById(decoded.userId)
+        if (!user) {
+            return res.status(400).json({ message: 'User not found' })
+        }
+
+        const accessToken = createAccessToken(user)
+
+        res.status(200).json({ message: 'Refresh access token successfully', accessToken })
+    } catch (error) {
+        res.status(500).json({ message: 'Refresh access token failed', error: error.message })
+    }
+}
 
 export const login = async (req, res) => {
     try {
@@ -18,15 +63,14 @@ export const login = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: 'Đăng nhập thất bại! Sai mật khẩu' })
         }
-        const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: env.NODE_ENV === 'production',
-            sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
 
-        res.status(200).json({ message: 'Đăng nhập thành công!', user })
+        const accessToken = createAccessToken(user)
+        const refreshToken = createRefreshToken(user)
+
+        await refreshTokenModel.create({ userId: user._id, refreshToken })
+        sendRefreshToken(res, refreshToken)
+
+        res.status(200).json({ message: 'Đăng nhập thành công!', user, accessToken })
     } catch (error) {
         res.status(500).json({ message: 'Đăng nhập thất bại! Vui lòng thử lại sau', error: error.message })
     }
@@ -58,15 +102,13 @@ export const socialLogin = async (req, res) => {
             await sendEmail(user.email, 'Đăng kí thành công', 'Welcome to E-Learning Website!')
         }
 
-        const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: env.NODE_ENV === 'production',
-            sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
+        const accessToken = createAccessToken(user)
+        const refreshToken = createRefreshToken(user)
 
-        res.status(200).json({ message: 'Đăng nhập thành công!', token, user })
+        await refreshTokenModel.create({ userId: user._id, refreshToken })
+        sendRefreshToken(res, refreshToken)
+
+        res.status(200).json({ message: 'Đăng nhập thành công!', token, user, accessToken })
     } catch (error) {
         res.status(500).json({ message: 'Đăng nhập thất bại! Vui lòng thử lại sau.', error: error.message })
     }
@@ -74,11 +116,12 @@ export const socialLogin = async (req, res) => {
 
 export const logout = async (req, res) => {
     try {
-        res.clearCookie('token', {
+        res.clearCookie('refreshToken', {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
             sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
         })
+        await refreshTokenModel.deleteOne({ refreshToken: req.cookies.refreshToken })
         res.status(200).json({ message: 'Đăng xuất thành công!' })
     } catch (error) {
         res.status(500).json({ message: 'Đăng xuất thất bại! Vui lòng thử lại sau.', error: error.message })
@@ -111,16 +154,14 @@ export const register = async (req, res) => {
         const newUser = new userModel({ ...user, passWord: hashedPassword, roleId: role._id })
         await newUser.save()
 
-        const token = jwt.sign({ userId: user._id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: env.NODE_ENV === 'production',
-            sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
+        const accessToken = createAccessToken(newUser)
+        const refreshToken = createRefreshToken(newUser)
+
+        await refreshTokenModel.create({ userId: newUser._id, refreshToken })
+        sendRefreshToken(res, refreshToken)
 
         await sendEmail(newUser.email, 'Đăng kí thành công!', 'Welcome to E-Learning Website!')
-        res.status(201).json({ message: 'Đăng kí thành công!', data: newUser })
+        res.status(201).json({ message: 'Đăng kí thành công!', data: newUser, accessToken })
     } catch (error) {
         res.status(500).json({ message: 'Đăng kí thất bại', error: error.message })
     }
