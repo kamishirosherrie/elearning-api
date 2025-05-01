@@ -9,11 +9,11 @@ import { sendEmail } from '~/services/mailService'
 import { changePassWordValidation, registerValidation } from '~/validations/inputValidation'
 
 const createAccessToken = (user) => {
-    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '3s' })
 }
 
 const createRefreshToken = (user) => {
-    return jwt.sign({ userId: user._id }, env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+    return jwt.sign({ userId: user._id }, env.REFRESH_TOKEN_SECRET, { expiresIn: '5s' })
 }
 
 const sendRefreshToken = (res, token) => {
@@ -21,34 +21,46 @@ const sendRefreshToken = (res, token) => {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
         sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 5 * 1000,
     })
 }
 
 export const refreshAccessToken = async (req, res) => {
     const token = req.cookies.refreshToken
+
     if (!token) {
         return res.status(400).json({ message: 'Refresh token is required' })
     }
 
     try {
         const decoded = jwt.verify(token, env.REFRESH_TOKEN_SECRET)
-        const storedToken = await refreshTokenModel.findOne({ userId: decoded.userId, refreshToken: token })
+
+        const storedToken = await refreshTokenModel.findOne({
+            userId: decoded.userId,
+            refreshToken: token,
+        })
 
         if (!storedToken) {
-            return res.status(400).json({ message: 'Refresh token is invalid' })
+            return res.status(403).json({ message: 'Refresh token is invalid or has been revoked' })
         }
 
         const user = await userModel.findById(decoded.userId)
         if (!user) {
-            return res.status(400).json({ message: 'User not found' })
+            return res.status(404).json({ message: 'User not found' })
         }
 
         const accessToken = createAccessToken(user)
 
-        res.status(200).json({ message: 'Refresh access token successfully', accessToken })
+        return res.status(200).json({
+            message: 'Refresh access token successfully',
+            accessToken,
+        })
     } catch (error) {
-        res.status(500).json({ message: 'Refresh access token failed', error: error.message })
+        if (error.name === 'TokenExpiredError') {
+            return res.status(403).json({ message: 'Refresh token expired' })
+        }
+
+        return res.status(403).json({ message: 'Invalid refresh token', error: error.message })
     }
 }
 
@@ -108,7 +120,7 @@ export const socialLogin = async (req, res) => {
         await refreshTokenModel.create({ userId: user._id, refreshToken })
         sendRefreshToken(res, refreshToken)
 
-        res.status(200).json({ message: 'Đăng nhập thành công!', token, user, accessToken })
+        res.status(200).json({ message: 'Đăng nhập thành công!', user, accessToken })
     } catch (error) {
         res.status(500).json({ message: 'Đăng nhập thất bại! Vui lòng thử lại sau.', error: error.message })
     }
@@ -141,14 +153,13 @@ export const register = async (req, res) => {
     if (!isValid) {
         return res.status(400).json({ message })
     }
-    const isUserExist = await userModel.findOne({
-        $or: [{ userName: user.userName }, { email: user.email }],
-    })
-    if (isUserExist) {
-        return res.status(400).json({
-            message: 'Tài khoản đã tồn tại!',
-        })
-    }
+
+    const isUserNameExist = await userModel.findOne({ userName: user.userName })
+    const isEmailExist = await userModel.findOne({ email: user.email })
+
+    if (isUserNameExist) return res.status(400).json({ message: 'Tên người dùng đã tồn tại' })
+    if (isEmailExist) return res.status(400).json({ message: 'Email đã tồn tại' })
+
     try {
         const hashedPassword = await bcrypt.hash(user.passWord, 10)
         const newUser = new userModel({ ...user, passWord: hashedPassword, roleId: role._id })

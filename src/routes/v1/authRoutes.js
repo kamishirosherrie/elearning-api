@@ -22,6 +22,6 @@ authRouter.put('/changePassWord', authenticateToken, changePassWord)
 authRouter.post('/forgotPassWord', forgotPassWord)
 authRouter.post('/resetPassWord', resetPassWord)
 authRouter.post('/verifyOtp', verifyOTP)
-authRouter.post('/refreshToken', authenticateToken, refreshAccessToken)
+authRouter.post('/refreshToken', refreshAccessToken)
 
 export { authRouter }
