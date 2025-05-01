@@ -17,6 +17,7 @@ import { authenticateToken } from './middlewares/authenticateToken'
 import { chapterRouter } from './routes/v1/chapterRoutes'
 import { testSetRouter } from './routes/v1/testSetRouter'
 import { lessonProgressRouter } from './routes/v1/lessonProgressRouter'
+import { aiRouter } from './routes/v1/aiRoutes'
 
 const START_SERVER = () => {
     const app = express()
@@ -64,6 +65,8 @@ const START_SERVER = () => {
     app.use('/questionType', authenticateToken, questionTypeRouter)
 
     app.use('/submission', submissionRoutes)
+
+    app.use('/ai', authenticateToken, aiRouter)
 }
 
 ;(async () => {

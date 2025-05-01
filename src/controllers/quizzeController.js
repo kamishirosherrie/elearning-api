@@ -1,6 +1,5 @@
 import { lessonModel } from '~/models/lessonModel'
 import { quizzeModel } from '~/models/quizzeModel'
-import { getClaudeSpeakingReply } from '~/utils/openai'
 
 export const getAllQuizze = async (req, res) => {
     try {
@@ -162,22 +161,5 @@ export const deleteQuizze = async (req, res) => {
             message: 'Delete quizze failed',
             error: error.message,
         })
-    }
-}
-
-export const handleSpeakingConversation = async (req, res) => {
-    try {
-        const { topicContext, conversationHistory, userAnswer } = req.body
-
-        if (!topicContext || !userAnswer) {
-            return res.status(400).json({ message: 'Missing topicContext or userAnswer' })
-        }
-
-        const reply = await getClaudeSpeakingReply({ topicContext, conversationHistory, userAnswer })
-
-        return res.status(200).json({ reply })
-    } catch (error) {
-        console.error('Speaking conversation error:', error.message)
-        return res.status(500).json({ message: 'Internal Server Error' })
     }
 }

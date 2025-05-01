@@ -9,11 +9,11 @@ import { sendEmail } from '~/services/mailService'
 import { changePassWordValidation, registerValidation } from '~/validations/inputValidation'
 
 const createAccessToken = (user) => {
-    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '3s' })
+    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 }
 
 const createRefreshToken = (user) => {
-    return jwt.sign({ userId: user._id }, env.REFRESH_TOKEN_SECRET, { expiresIn: '5s' })
+    return jwt.sign({ userId: user._id }, env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 }
 
 const sendRefreshToken = (res, token) => {
@@ -21,7 +21,7 @@ const sendRefreshToken = (res, token) => {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
         sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 5 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 }
 
