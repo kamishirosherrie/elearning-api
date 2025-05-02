@@ -5,8 +5,8 @@ const chatHistorySchema = new mongoose.Schema({
 
     message: [
         {
-            role: { type: String, enum: ['user', 'ai'], required: true },
-            content: { type: String },
+            from: { type: String, enum: ['user', 'ai'], required: true },
+            text: { type: String, required: true },
             timestamp: { type: Date, default: Date.now },
         },
     ],
