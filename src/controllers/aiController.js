@@ -29,7 +29,7 @@ export const talkWithAI = async (req, res) => {
         const courseInfo = await courseModel.find()
         const reply = await getAIAssistantReply({ courseInfo, conversationHistory, userMessage })
 
-        const chatHistory = [...conversationHistory, { from: 'user', text: userMessage }, { from: 'ai', text: reply }]
+        const chatHistory = [...conversationHistory, { from: 'ai', text: reply }]
 
         await chatHistoryModel.updateOne({ userId }, { $set: { message: chatHistory } }, { upsert: true })
         return res.status(200).json({ reply })
