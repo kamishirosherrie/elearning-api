@@ -3,7 +3,6 @@ import { courseModel } from '~/models/courseModel'
 import { lessonModel } from '~/models/lessonModel'
 import { lessonProgressModel } from '~/models/lessonProgressModel'
 import { quizzeModel } from '~/models/quizzeModel'
-import { userModel } from '~/models/userModel'
 
 export const getAllLessons = async (req, res) => {
     try {

@@ -18,6 +18,8 @@ import { chapterRouter } from './routes/v1/chapterRoutes'
 import { testSetRouter } from './routes/v1/testSetRouter'
 import { lessonProgressRouter } from './routes/v1/lessonProgressRouter'
 import { aiRouter } from './routes/v1/aiRoutes'
+import { postRouter } from './routes/v1/postRouter'
+import { commentRouter } from './routes/v1/commentRouter'
 
 const START_SERVER = () => {
     const app = express()
@@ -67,6 +69,10 @@ const START_SERVER = () => {
     app.use('/submission', submissionRoutes)
 
     app.use('/ai', authenticateToken, aiRouter)
+
+    app.use('/post', postRouter)
+
+    app.use('/comment', commentRouter)
 }
 
 ;(async () => {
