@@ -20,6 +20,8 @@ import { lessonProgressRouter } from './routes/v1/lessonProgressRouter'
 import { aiRouter } from './routes/v1/aiRoutes'
 import { postRouter } from './routes/v1/postRouter'
 import { commentRouter } from './routes/v1/commentRouter'
+import './cron/dailyReminder'
+import { paymentRouter } from './routes/v1/paymentRouter'
 
 const START_SERVER = () => {
     const app = express()
@@ -73,6 +75,8 @@ const START_SERVER = () => {
     app.use('/post', postRouter)
 
     app.use('/comment', commentRouter)
+
+    app.use('/payment', paymentRouter)
 }
 
 ;(async () => {

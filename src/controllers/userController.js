@@ -77,6 +77,7 @@ export const addUser = async (req, res) => {
     }
 }
 
+// for admin update
 export const updateUserInfo = async (req, res) => {
     try {
         const { _id, userName, email, passWord, ...rest } = req.body
@@ -110,11 +111,12 @@ export const updateUserInfo = async (req, res) => {
     }
 }
 
+//for user update
 export const updateUserProfile = async (req, res) => {
     try {
         const { _id, ...rest } = req.body
 
-        const existingUser = await userModel.findById(_id).populate('roleId')
+        const existingUser = await userModel.findById(_id)
         if (!existingUser) {
             return res.status(404).json({ message: 'User not found' })
         }
@@ -122,6 +124,7 @@ export const updateUserProfile = async (req, res) => {
             fullName: rest.fullName,
             phoneNumber: rest.phoneNumber,
             birthday: rest.birthday,
+            isSubcribedEmail: rest.isSubcribedEmail,
         })
         if (!isValid) {
             return res.status(400).json({ message })
