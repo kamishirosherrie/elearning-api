@@ -1,0 +1,51 @@
+<mjml>
+    <mj-head>
+        <mj-title>Đã đến giờ học bài</mj-title>
+        <mj-preview>Đừng quên học bài hôm nay!</mj-preview>
+        <mj-style inline="inline">
+            body { font-family: san-serif; } .title-text { font-size: 22px; font-weight: bold; } .content-text {
+            font-size: 16px; line-height: 1.6; }
+        </mj-style>
+    </mj-head>
+
+    <mj-body background-color="#f6f6f6">
+        <mj-section background-color="#ffffff" padding="30px" border-radius="10px">
+            <mj-column>
+                <mj-image
+                    src="https://res.cloudinary.com/dpfuhelee/image/upload/v1746886988/logo_ldhuc6.svg"
+                    alt="EMaster Logo"
+                    width="120px"
+                    align="center"
+                    padding-bottom="10px"
+                />
+
+                <mj-text align="center" font-size="20px" color="#2c3e50" font-family="Helvetica">
+                    👋 Xin chào {{username}},
+                </mj-text>
+
+                <mj-text css-class="content-text">
+                    Đây là thông báo nhắc nhở về việc học bài của bạn ngày hôm nay.
+                </mj-text>
+
+                <mj-text css-class="content-text">
+                    Hãy tiếp tục duy trì thói quen học tập của bạn để đạt được kết quả tốt nhất. Bạn đang làm rất tốt
+                    rồi!
+                </mj-text>
+
+                <mj-button href="{{link}}" background-color="#007BFF" color="#ffffff" font-size="16px">
+                    Học Ngay
+                </mj-button>
+
+                <mj-divider border-color="#dddddd" />
+
+                <mj-text font-size="13px" color="#999999" align="center">
+                    Đây là email tự động từ Hệ thống học Tiếng Anh trực tuyến EMaster. Nếu bạn có bất kỳ câu hỏi nào,
+                    vui lòng liên hệ bộ phận hỗ trợ tại
+                    <mj-a href="mailto:support@emaster.com" color="#5eb3ff" text-decoration="underline"
+                        >support@emaster.com</mj-a
+                    >.
+                </mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

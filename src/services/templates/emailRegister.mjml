@@ -1,0 +1,58 @@
+<mjml>
+    <mj-head>
+        <mj-title>Đăng ký thành công</mj-title>
+        <mj-preview>Chào mừng bạn đến với EMaster!</mj-preview>
+        <mj-style inline="inline">
+            .main-text { font-size: 16px; line-height: 1.6; } .highlight { font-weight: bold; color: #007BFF; }
+        </mj-style>
+    </mj-head>
+
+    <mj-body background-color="#f4f4f4">
+        <mj-section background-color="#ffffff" padding="20px" border-radius="8px">
+            <mj-column>
+                <mj-image
+                    src="https://res.cloudinary.com/dpfuhelee/image/upload/v1746886988/logo_ldhuc6.svg"
+                    alt="EMaster Logo"
+                    width="120px"
+                    align="center"
+                    padding-bottom="10px"
+                />
+
+                <mj-text align="center" font-size="20px" font-weight="bold" color="#2c3e50">
+                    Đăng ký tài khoản thành công!
+                </mj-text>
+
+                <mj-divider border-color="#cccccc" />
+
+                <mj-text css-class="main-text">
+                    Xin chào <span class="highlight">{{username}}</span>, <br /><br />
+                    Cảm ơn bạn đã đăng ký tài khoản tại <b>EMaster</b> – nền tảng học tiếng Anh thông minh.
+                </mj-text>
+
+                <mj-text css-class="main-text">
+                    <b>Thông tin đăng nhập của bạn:</b><br />
+                    <b>Tên đăng nhập:</b> {{username}}<br />
+                    <b>Mật khẩu:</b> bạn đã cung cấp trong quá trình đăng ký
+                </mj-text>
+
+                <mj-button
+                    href="{{loginLink}}"
+                    background-color="#28a745"
+                    color="#ffffff"
+                    font-size="16px"
+                    padding="20px"
+                >
+                    Bắt đầu học ngay
+                </mj-button>
+
+                <mj-text font-size="14px" color="#999999" align="center">
+                    Đây là email tự động từ Hệ thống học Tiếng Anh trực tuyến EMaster. Nếu bạn có bất kỳ câu hỏi nào,
+                    vui lòng liên hệ bộ phận hỗ trợ EMaster tại
+                    <mj-a href="mailto:support@emaster.com" color="#5eb3ff" text-decoration="underline"
+                        >support@emaster.com</mj-a
+                    >.
+                </mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>
