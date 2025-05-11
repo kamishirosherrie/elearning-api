@@ -1,48 +1,38 @@
-import crypto from 'crypto'
+import { ProductCode, VNPay, VnpLocale, dateFormat, ignoreLogger } from 'vnpay'
+import { env } from '~/config/environment'
 
-const vnpayConfig = {
-    vnp_TmnCode: '76IXUY2Q',
-    vnp_HashSecret: '9WPZPWIFD9TAN5T5UXL1L7LUYST3L684',
-    vnp_Url: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
-    vnp_ReturnUrl: 'https://emaster.vercel.app/payment/return',
-}
+const now = new Date()
+const expireDate = new Date(now.getTime() + 15 * 60 * 1000)
 
-export const createPaymentUrl = (orderId, amount, orderInfo) => {
-    const vnp_Params = {
-        vnp_Version: '2.0.0',
-        vnp_Command: 'pay',
-        vnp_TmnCode: vnpayConfig.vnp_TmnCode,
-        vnp_Amount: amount * 100,
-        vnp_Currency: 'VND',
-        vnp_OrderInfo: orderInfo,
-        vnp_OrderId: orderId,
-        vnp_ReturnUrl: vnpayConfig.vnp_ReturnUrl,
+const vnpay = new VNPay({
+    tmnCode: '76IXUY2Q',
+    secureSecret: '9WPZPWIFD9TAN5T5UXL1L7LUYST3L684',
+    vnpayHost: 'https://sandbox.vnpayment.vn',
+
+    testMode: true,
+    hashAlgorithm: 'SHA512',
+    enableLog: true,
+    loggerFn: ignoreLogger,
+
+    endpoints: {
+        paymentEndpoint: 'paymentv2/vpcpay.html',
+        queryDrRefundEndpoint: 'merchant_webapi/api/transaction',
+        getBankListEndpoint: 'qrpayauth/api/merchant/get_bank_list',
+    },
+})
+
+export const vnpayResponse = (orderId, amount, orderInfo) => {
+    const vnpayResponse = vnpay.buildPaymentUrl({
+        vnp_Amount: amount,
+        vnp_IpAddr: '127.0.0.1',
         vnp_TxnRef: orderId,
-        vnp_CreateDate: new Date().toISOString().replace(/[-:]/g, '').split('.')[0],
-        vnp_Locale: 'vn',
-    }
-
-    const sortedParams = Object.keys(vnp_Params).sort()
-    let queryString = ''
-    sortedParams.forEach((key) => {
-        queryString += key + '=' + vnp_Params[key] + '&'
+        vnp_OrderInfo: orderInfo,
+        vnp_OrderType: ProductCode.Other,
+        vnp_ReturnUrl: `${env.FRONTEND_URL}/payment/result`,
+        vnp_Locale: VnpLocale.VN,
+        vnp_CreateDate: dateFormat(now),
+        vnp_ExpireDate: dateFormat(expireDate),
     })
-    queryString = queryString.substring(0, queryString.length - 1)
 
-    const signature = crypto.createHmac('sha512', vnpayConfig.vnp_HashSecret).update(queryString).digest('hex')
-    vnp_Params['vnp_Signature'] = signature
-
-    return vnpayConfig.vnp_Url + '?' + new URLSearchParams(vnp_Params).toString()
-}
-
-export const validateSignature = (vnp_Params, secureHash) => {
-    const sortedParams = Object.keys(vnp_Params).sort()
-    let queryString = ''
-    sortedParams.forEach((key) => {
-        queryString += key + '=' + vnp_Params[key] + '&'
-    })
-    queryString = queryString.substring(0, queryString.length - 1)
-
-    const signature = crypto.createHmac('sha512', vnpayConfig.vnp_HashSecret).update(queryString).digest('hex')
-    return signature === secureHash
+    return vnpayResponse
 }

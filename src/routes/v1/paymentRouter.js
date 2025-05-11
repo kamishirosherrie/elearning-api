@@ -4,6 +4,6 @@ import { createOrder, paymentReturn } from '~/controllers/paymentController'
 const paymentRouter = express.Router()
 
 paymentRouter.post('/create', createOrder)
-paymentRouter.get('/payment/return', paymentReturn)
+paymentRouter.get('/result', paymentReturn)
 
 export { paymentRouter }
