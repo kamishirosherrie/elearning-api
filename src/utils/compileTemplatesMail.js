@@ -2,7 +2,7 @@ import mjml2html from 'mjml'
 import fs from 'fs'
 import path from 'path'
 
-const mjmlTemplatePath = path.join(__dirname, '..', '..', 'templates', 'emailReminder.mjml')
+const mjmlTemplatePath = path.join(__dirname, '..', 'services', 'templates', 'emailReminder.mjml')
 const mjmlTemplate = fs.readFileSync(mjmlTemplatePath, 'utf-8')
 
 export const filledTemplateReminder = (userName, link) => {
