@@ -17,27 +17,33 @@ export const createOrder = async (req, res) => {
     }
 }
 
-export const paymentReturn = (req, res) => {
-    const vnp_Params = req.query
-    const secureHash = vnp_Params['vnp_Signature']
-    delete vnp_Params['vnp_Signature']
+export const paymentReturn = async (req, res) => {
+    const vnp_Params = { ...req.query }
+    const secureHash = vnp_Params['vnp_SecureHash']
 
-    const signature = validateSignature(vnp_Params, secureHash)
+    delete vnp_Params['vnp_SecureHash']
+    delete vnp_Params['vnp_SecureHashType']
 
-    if (signature) {
-        const orderId = vnp_Params['vnp_OrderId']
-        const transactionStatus = vnp_Params['vnp_TransactionStatus']
+    const isValid = validateSignature(vnp_Params, secureHash)
 
-        if (transactionStatus === '00') {
-            paymentModel.updateOne({ orderId }, { transactionStatus: 'Success' }, () => {
-                res.send('Thanh toán thành công!')
-            })
-        } else {
-            paymentModel.updateOne({ orderId }, { transactionStatus: 'Failed' }, () => {
-                res.send('Thanh toán thất bại!')
-            })
+    if (!isValid) {
+        return res.status(400).json({ message: 'Chữ ký không hợp lệ' })
+    }
+
+    const orderId = vnp_Params['vnp_TxnRef']
+    const transactionStatus = vnp_Params['vnp_ResponseCode'] === '00' ? 'Success' : 'Failed'
+
+    try {
+        const result = await paymentModel.updateOne({ orderId }, { transactionStatus })
+
+        if (result.modifiedCount === 0) {
+            console.warn(`[VNPay] Không tìm thấy orderId ${orderId} để cập nhật`)
         }
-    } else {
-        res.send('Dữ liệu bị thay đổi')
+        return res.redirect(`${process.env.FRONTEND_URL}/payment/result?orderId=${orderId}&status=${transactionStatus}`)
+    } catch (error) {
+        console.error('[VNPay] Lỗi khi cập nhật trạng thái:', error)
+        return res.status(500).json({
+            message: 'Lỗi khi cập nhật trạng thái giao dịch',
+        })
     }
 }

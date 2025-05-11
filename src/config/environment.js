@@ -14,4 +14,5 @@ export const env = {
     NODE_MAILER_USER: process.env.NODE_MAILER_USER,
     NODE_MAILER_PASS: process.env.NODE_MAILER_PASS,
     OPENAI_API_KEY: process.env.OPENAI_SECRET,
+    FRONTEND_URL: process.env.FRONTEND_URL,
 }
