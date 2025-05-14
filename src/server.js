@@ -26,6 +26,7 @@ import { paymentRouter } from './routes/v1/paymentRouter'
 const START_SERVER = () => {
     const app = express()
 
+    app.use(express.urlencoded({ extended: true }))
     app.use(express.json())
     app.use(cookieParser())
 

@@ -6,7 +6,7 @@ const expireDate = new Date(now.getTime() + 15 * 60 * 1000)
 
 const vnpay = new VNPay({
     tmnCode: '76IXUY2Q',
-    secureSecret: '9WPZPWIFD9TAN5T5UXL1L7LUYST3L684',
+    secureSecret: env.VNPAY_SECURE_SECRET,
     vnpayHost: 'https://sandbox.vnpayment.vn',
 
     testMode: true,

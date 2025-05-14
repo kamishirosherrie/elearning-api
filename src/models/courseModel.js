@@ -8,6 +8,8 @@ const courseSchema = new mongoose.Schema(
         title: { type: String, required: true },
         description: { type: String, required: false },
         shortDescription: { type: String, required: false },
+        fullDescription: { type: String, required: false },
+        price: { type: Number, required: true },
         slug: {
             type: String,
             slug: 'title',

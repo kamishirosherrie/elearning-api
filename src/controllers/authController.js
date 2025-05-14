@@ -9,7 +9,7 @@ import { sendEmail } from '~/services/mailService'
 import { changePassWordValidation, registerValidation } from '~/validations/inputValidation'
 
 const createAccessToken = (user) => {
-    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
 }
 
 const createRefreshToken = (user) => {
@@ -71,6 +71,9 @@ export const login = async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: 'Đăng nhập thất bại! Tài khoản không tồn tại' })
         }
+        if (user.isDisabled) {
+            return res.status(400).json({ message: 'Đăng nhập thất bại! Tài khoản đã bị khóa' })
+        }
         const isMatch = await bcrypt.compare(passWord, user.passWord)
         if (!isMatch) {
             return res.status(400).json({ message: 'Đăng nhập thất bại! Sai mật khẩu' })
@@ -112,6 +115,10 @@ export const socialLogin = async (req, res) => {
             })
 
             await sendEmail(user.email, 'Đăng kí thành công', 'Welcome to E-Learning Website!')
+        }
+
+        if (user.isDisabled) {
+            return res.status(400).json({ message: 'Đăng nhập thất bại! Tài khoản đã bị khóa' })
         }
 
         const accessToken = createAccessToken(user)
