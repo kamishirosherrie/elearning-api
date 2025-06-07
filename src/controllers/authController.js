@@ -9,7 +9,7 @@ import { sendEmail } from '~/services/mailService'
 import { changePassWordValidation, registerValidation } from '~/validations/inputValidation'
 
 const createAccessToken = (user) => {
-    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
+    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 }
 
 const createRefreshToken = (user) => {
@@ -135,6 +135,8 @@ export const socialLogin = async (req, res) => {
 
         res.status(200).json({ message: 'Đăng nhập thành công!', user, accessToken })
     } catch (error) {
+        console.log(error)
+
         res.status(500).json({ message: 'Đăng nhập thất bại! Vui lòng thử lại sau.', error: error.message })
     }
 }
