@@ -1,0 +1,57 @@
+<mjml>
+    <mj-head>
+        <mj-title>Xác nhận hủy đăng ký nhận thông báo từ EMaster</mj-title>
+        <mj-preview>Chúng tôi rất tiếc khi bạn rời đi – EMaster luôn sẵn sàng chào đón bạn quay lại!</mj-preview>
+        <mj-style> .text-primary { color: #0056b3; font-weight: bold; } </mj-style>
+    </mj-head>
+    <mj-body background-color="#f4f4f4">
+        <mj-section background-color="#ffffff" padding="32px 24px">
+            <mj-column>
+                <mj-image src="https://emaster.vercel.app/logo.png" alt="EMaster Logo" width="120px" />
+
+                <mj-divider border-color="#dddddd" padding="16px 0" />
+
+                <mj-text font-size="16px" color="#555555" padding-top="8px">
+                    Xin chào <span class="text-primary">{{userName}}</span>,
+                </mj-text>
+
+                <mj-text font-size="16px" color="#555555">
+                    Chúng tôi xác nhận rằng bạn đã hủy đăng ký nhận thông báo từ <strong>EMaster</strong>.
+                </mj-text>
+
+                <mj-text font-size="16px" color="#555555">
+                    Dù rất tiếc khi không còn đồng hành cùng bạn, EMaster vẫn luôn trân trọng thời gian bạn đã dành để
+                    học tập cùng chúng tôi.
+                </mj-text>
+
+                <mj-text font-size="16px" color="#555555">
+                    Trong tương lai, nếu bạn cần hỗ trợ hoặc muốn quay lại học cùng EMaster, đừng ngần ngại ghé thăm:
+                </mj-text>
+
+                <mj-button
+                    href="https://emaster.vercel.app"
+                    background-color="#0056b3"
+                    color="#ffffff"
+                    font-size="16px"
+                    padding="24px 0"
+                >
+                    Quay lại EMaster
+                </mj-button>
+
+                <mj-text font-size="14px" color="#888888">
+                    Nếu đây là nhầm lẫn hoặc bạn muốn đăng ký lại, bạn có thể
+                    <a href="https://emaster.vercel.app/newsletter" style="color: #0056b3"
+                        >đăng ký nhận thông báo tại đây</a
+                    >.
+                </mj-text>
+
+                <mj-divider border-color="#eeeeee" padding="16px 0" />
+
+                <mj-text font-size="12px" color="#999999" align="center">
+                    © 2025 EMaster. Mọi quyền được bảo lưu. <br />
+                    Website: <a href="https://emaster.vercel.app" style="color: #999999">emaster.vercel.app</a>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

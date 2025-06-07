@@ -49,6 +49,12 @@ export const refreshAccessToken = async (req, res) => {
             return res.status(404).json({ message: 'User not found' })
         }
 
+        await refreshTokenModel.deleteOne({ refreshToken: token })
+
+        const newRefreshToken = createRefreshToken(user)
+        await refreshTokenModel.create({ userId: user._id, refreshToken: newRefreshToken })
+        sendRefreshToken(res, newRefreshToken)
+
         const accessToken = createAccessToken(user)
 
         return res.status(200).json({

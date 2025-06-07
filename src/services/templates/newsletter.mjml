@@ -1,0 +1,52 @@
+<mjml>
+    <mj-head>
+        <mj-title>Xác nhận đăng ký nhận thông báo từ EMaster</mj-title>
+        <mj-preview>Cảm ơn bạn đã đồng hành cùng EMaster trong hành trình học tiếng Anh</mj-preview>
+        <mj-style> .text-primary { color: #0056b3; font-weight: bold; } </mj-style>
+    </mj-head>
+    <mj-body background-color="#f1f1f1">
+        <mj-section background-color="#ffffff" padding="32px 24px">
+            <mj-column>
+                <mj-image src="https://res.cloudinary.com/dpfuhelee/image/upload/v1746886988/logo_ldhuc6.svg" />
+
+                <mj-divider border-color="#dddddd" padding="16px 0" />
+
+                <mj-text font-size="16px" color="#555555" padding-top="8px">
+                    Xin chào <span class="text-primary">{{userName}}</span>,
+                </mj-text>
+
+                <mj-text font-size="16px" color="#555555">
+                    Cảm ơn bạn đã đăng ký nhận thông báo từ <strong>EMaster</strong>
+                </mj-text>
+
+                <mj-text font-size="16px" color="#555555">
+                    Chúng tôi cam kết cung cấp những nội dung chất lượng, bao gồm:
+                    <ul>
+                        <li>Tài liệu học và luyện thi TOEIC, IELTS</li>
+                        <li>Gợi ý khóa học phù hợp theo trình độ</li>
+                        <li>Cập nhật ưu đãi và chương trình học mới</li>
+                    </ul>
+                </mj-text>
+
+                <mj-button
+                    href="https://emaster.vercel.app"
+                    background-color="#0056b3"
+                    color="#ffffff"
+                    font-size="16px"
+                    padding="24px 0"
+                >
+                    Truy cập nền tảng học tập
+                </mj-button>
+
+                <mj-text font-size="14px" color="#888888">
+                    Nếu bạn không đăng ký hoặc muốn hủy nhận thông báo, vui lòng
+                    <a href="https://emaster.vercel.app/student/my-account" style="color: #0056b3">nhấn vào đây</a>.
+                </mj-text>
+
+                <mj-divider border-color="#eeeeee" padding="16px 0" />
+
+                <mj-text font-size="12px" color="#999999" align="center"> © 2025 EMaster. <br /> </mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

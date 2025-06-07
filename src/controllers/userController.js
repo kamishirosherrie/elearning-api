@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt'
 import { courseEnrollmentModel } from '~/models/courseEnrollmentModel'
 import { userModel } from '~/models/userModel'
+import { sendEmail } from '~/services/mailService'
+import { filledTemplateSubscribe, filledTemplateUnsubscribe } from '~/utils/compileTemplatesMail'
 import { updateProfileValidation } from '~/validations/inputValidation'
 
 export const getUsers = async (req, res) => {
@@ -124,7 +126,6 @@ export const updateUserProfile = async (req, res) => {
             fullName: rest.fullName,
             phoneNumber: rest.phoneNumber,
             birthday: rest.birthday,
-            isSubcribedEmail: rest.isSubcribedEmail,
         })
         if (!isValid) {
             return res.status(400).json({ message })
@@ -137,9 +138,19 @@ export const updateUserProfile = async (req, res) => {
             { new: true, runValidators: true },
         )
 
+        if (rest.isSubscribedEmail) {
+            const mailContent = filledTemplateSubscribe(rest.fullName)
+            await sendEmail(rest.email, 'Xác nhận đăng ký nhận bản tin', mailContent)
+        } else {
+            const mailContent = filledTemplateUnsubscribe(rest.fullName)
+            await sendEmail(rest.email, 'Xác nhận hủy đăng ký nhận bản tin', mailContent)
+        }
+        console.log('Updated user:', updatedUser)
+
         return res.status(200).json({ message: 'Update user successfully', user: updatedUser })
     } catch (error) {
         res.status(500).json({ message: 'Update user failed', error: error.message })
+        console.log('Error updating user:', error)
     }
 }
 

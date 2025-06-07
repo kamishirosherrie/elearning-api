@@ -8,7 +8,15 @@ export const getAllTestSet = async (req, res) => {
         const submission = await submissionModel.find({ userId: userId })
 
         const quizzeIdDone = submission.map((item) => item.quizzeId)
-        const testSets = await testSetModel.find().populate('quizzes').lean()
+        const testSets = await testSetModel
+            .find()
+            .populate({
+                path: 'quizzes',
+                options: {
+                    sort: { _id: 1 },
+                },
+            })
+            .lean({ virtuals: true })
 
         const result = testSets.map((item) => {
             const quizzeDone = item.quizzes.filter((quizze) => quizzeIdDone.includes(quizze._id.toString())).length

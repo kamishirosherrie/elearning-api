@@ -108,6 +108,9 @@ export const getLessonByCourseSlug = async (req, res) => {
                 $unwind: { path: '$lessons', preserveNullAndEmptyArrays: true },
             },
             {
+                $sort: { 'lessons.order': 1 },
+            },
+            {
                 $group: {
                     _id: '$_id',
                     title: { $first: '$title' },

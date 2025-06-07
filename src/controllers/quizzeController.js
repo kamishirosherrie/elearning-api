@@ -163,3 +163,26 @@ export const deleteQuizze = async (req, res) => {
         })
     }
 }
+
+export const updateQuizze = async (req, res) => {
+    try {
+        const quizze = await quizzeModel.findOne({ _id: req.params.id })
+        if (!quizze) {
+            return res.status(400).json({
+                message: 'Quizze not found',
+            })
+        }
+
+        const updatedQuizze = await quizzeModel.findByIdAndUpdate(quizze._id, req.body, { new: true })
+
+        res.status(200).json({
+            message: 'Update quizze successfully',
+            updatedQuizze,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Update quizze failed',
+            error: error.message,
+        })
+    }
+}

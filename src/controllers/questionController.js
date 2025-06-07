@@ -19,6 +19,7 @@ export const getQuestionByQuzzieSlug = async (req, res) => {
     try {
         const quizze = await quizzeModel.findOne({ slug: req.params.quizzeSlug })
         const { part } = req.query
+        console.log('part:', part)
 
         if (!quizze) {
             return res.status(400).json({
@@ -32,6 +33,7 @@ export const getQuestionByQuzzieSlug = async (req, res) => {
                 .find({ quizzeId: quizze._id, part: part })
                 .populate('questionTypeId')
                 .populate('quizzeId')
+            console.log(questions)
         } else {
             questions = await questionModel
                 .find({ quizzeId: quizze._id })
@@ -59,6 +61,31 @@ export const getQuestionByQuzzieSlug = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: 'Get questions by quizze failed',
+            error: error.message,
+        })
+    }
+}
+
+export const getAvailableParts = async (req, res) => {
+    try {
+        const quizze = await quizzeModel.findOne({ slug: req.params.quizzeSlug })
+        if (!quizze) {
+            return res.status(400).json({
+                message: 'Quizze not found',
+            })
+        }
+
+        const parts = await questionModel.distinct('part', { quizzeId: quizze._id })
+        parts.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+        console.log('parts:', parts)
+
+        res.status(200).json({
+            message: 'Get available parts successfully',
+            parts,
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Get available parts failed',
             error: error.message,
         })
     }

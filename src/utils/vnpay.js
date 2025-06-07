@@ -1,9 +1,6 @@
 import { ProductCode, VNPay, VnpLocale, dateFormat, ignoreLogger } from 'vnpay'
 import { env } from '~/config/environment'
 
-const now = new Date()
-const expireDate = new Date(now.getTime() + 15 * 60 * 1000)
-
 const vnpay = new VNPay({
     tmnCode: '76IXUY2Q',
     secureSecret: env.VNPAY_SECURE_SECRET,
@@ -22,6 +19,8 @@ const vnpay = new VNPay({
 })
 
 export const vnpayResponse = (orderId, amount, orderInfo) => {
+    const now = new Date()
+    const expireDate = new Date(now.getTime() + 15 * 60 * 1000)
     const vnpayResponse = vnpay.buildPaymentUrl({
         vnp_Amount: amount,
         vnp_IpAddr: '127.0.0.1',

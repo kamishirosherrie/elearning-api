@@ -40,7 +40,7 @@ export const getAllPost = async (req, res) => {
             {
                 $lookup: {
                     from: 'Comments',
-                    localField: '_id',
+                    localField: 'id',
                     foreignField: 'postId',
                     as: 'comments',
                 },
@@ -87,14 +87,14 @@ export const createPost = async (req, res) => {
 export const updatePost = async (req, res) => {
     try {
         const { userId } = req.user
-        const post = await postModel.findById(req.params._id)
+        const post = await postModel.findById(req.params.id)
         if (!post) {
             return res.status(400).json({
                 message: 'Post not found',
             })
         }
 
-        if (!post.authorId.toString().equals(userId)) {
+        if (!post.authorId.equals(userId)) {
             return res.status(401).json({
                 message: 'Unauthorized',
             })
@@ -111,6 +111,8 @@ export const updatePost = async (req, res) => {
     }
 }
 
+// admin có thể xóa các bài viết của user khác
+
 export const deletePost = async (req, res) => {
     try {
         const { userId } = req.user
@@ -121,7 +123,7 @@ export const deletePost = async (req, res) => {
             })
         }
 
-        if (!post.authorId.toString().equals(userId)) {
+        if (!post.authorId.equals(userId)) {
             return res.status(401).json({
                 message: 'Unauthorized',
             })

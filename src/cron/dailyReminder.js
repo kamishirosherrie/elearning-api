@@ -4,7 +4,7 @@ import { userModel } from '~/models/userModel.js'
 import { filledTemplateReminder } from '~/utils/compileTemplatesMail.js'
 
 const sendMailToUsersSubcribed = async () => {
-    const users = await userModel.find({ isSubcribedEmail: true }).lean()
+    const users = await userModel.find({ isSubscribedEmail: true }).lean()
     for (const user of users) {
         try {
             const mailContent = filledTemplateReminder(user.fullName, 'https://emaster.vercel.app')

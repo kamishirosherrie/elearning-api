@@ -16,9 +16,10 @@ const quizzeSchema = new mongoose.Schema(
             slugOn: { updateOne: true, save: true },
         },
         lessonId: { type: mongoose.Schema.Types.ObjectId, default: null, ref: 'Lessons' },
-        type: { type: String, enum: ['lesson', 'entrytest', 'testpractice'], default: 'lesson' },
+        type: { type: String, enum: ['lesson', 'entrytest', 'testpractice', 'answer'], default: 'lesson' },
         context: { type: String, required: false, default: '' },
         testSetId: { type: mongoose.Schema.Types.ObjectId, ref: 'TestSets' },
+        audioUrl: { type: String, required: false, default: '' },
     },
     {
         timestamps: true,

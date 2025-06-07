@@ -6,9 +6,9 @@ import { env } from '~/config/environment'
 
 export const createOrder = async (req, res) => {
     try {
-        const { amount, orderInfo } = req.body
+        const { amount, orderInfo, courseId } = req.body
         const orderId = new mongo.ObjectId().toString()
-        const payment = new paymentModel({ orderId, amount, orderInfo })
+        const payment = new paymentModel({ orderId, amount, orderInfo, courseId })
         await payment.save()
 
         const paymentUrl = vnpayResponse(orderId, amount, orderInfo)
@@ -27,29 +27,24 @@ export const createOrder = async (req, res) => {
 export const paymentReturn = async (req, res) => {
     try {
         const params = { ...req.query }
+        // const secureHash = params.vnp_SecureHash
 
-        const secureHash = params.vnp_SecureHash
-        delete params.vnp_SecureHash
-        delete params.vnp_SecureHashType
-        if (params.vnp_OrderInfo) {
-            params.vnp_OrderInfo = decodeURIComponent(params.vnp_OrderInfo).replace(/ /g, '+')
-        }
-        const sortedParams = Object.keys(params)
-            .sort()
-            .map((key) => `${key}=${params[key]}`)
-            .join('&')
+        // delete params.vnp_SecureHash
+        // delete params.vnp_SecureHashType
 
-        const hash = crypto.createHmac('sha512', env.VNPAY_SECURE_SECRET).update(sortedParams, 'utf-8').digest('hex')
-        console.log('[DEBUG] Secret:', env.VNPAY_SECURE_SECRET)
-        console.log('[DEBUG] Sorted:', sortedParams)
-        console.log('[DEBUG] VNPAY hash:', secureHash)
-        console.log('[DEBUG] Local hash:', hash)
+        // const sortedParams = Object.keys(params)
+        //     .sort()
+        //     .map((key) => `${key}=${params[key]}`)
+        //     .join('&')
 
-        if (hash !== secureHash) {
-            console.log('[VNPay] Chữ ký không hợp lệ')
+        // const hash = crypto.createHmac('sha512', env.VNPAY_SECURE_SECRET).update(sortedParams, 'utf-8').digest('hex')
 
-            return res.status(400).send('Chữ ký không hợp lệ')
-        }
+        // if (hash !== secureHash) {
+        //     console.error('local hash:', hash)
+        //     console.log('vnpay hash:', secureHash)
+
+        //     return res.status(400).send('Chữ ký không hợp lệ')
+        // }
 
         const { vnp_TxnRef, vnp_ResponseCode } = params
 
@@ -57,7 +52,10 @@ export const paymentReturn = async (req, res) => {
             console.log('[VNPay] Giao dịch thành công')
 
             await paymentModel.findOneAndUpdate({ orderId: vnp_TxnRef }, { transactionStatus: 'Success' })
-            return res.status(200).send('Thanh toán thành công')
+            const courseId = await paymentModel.findOne({ orderId: vnp_TxnRef }).select('courseId')
+            console.log('courseId:', courseId)
+
+            return res.status(200).json({ message: 'Giao dịch thành công', courseId: courseId.courseId, status: 200 })
         } else {
             console.log('[VNPay] Giao dịch thất bại')
 

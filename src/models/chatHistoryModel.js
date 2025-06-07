@@ -2,7 +2,6 @@ import mongoose from 'mongoose'
 
 const chatHistorySchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Users' },
-
     message: [
         {
             from: { type: String, enum: ['user', 'ai'], required: true },

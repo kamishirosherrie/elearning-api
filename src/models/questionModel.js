@@ -8,6 +8,7 @@ const questionSchema = new mongoose.Schema(
         answer: [{ isCorrect: { type: Boolean, required: true }, text: { type: String, required: true } }],
         part: { type: String, default: '' },
         context: { type: String, default: '' },
+        introduction: { type: String, default: '' },
     },
     {
         timestamps: true,
