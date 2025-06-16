@@ -20,6 +20,7 @@ export const getQuestionByQuzzieSlug = async (req, res) => {
         const quizze = await quizzeModel.findOne({ slug: req.params.quizzeSlug })
         const { part } = req.query
         console.log('part:', part)
+        console.log('quizze:', quizze)
 
         if (!quizze) {
             return res.status(400).json({
@@ -33,12 +34,13 @@ export const getQuestionByQuzzieSlug = async (req, res) => {
                 .find({ quizzeId: quizze._id, part: part })
                 .populate('questionTypeId')
                 .populate('quizzeId')
-            console.log(questions)
+            console.log('questions by part:', questions)
         } else {
             questions = await questionModel
                 .find({ quizzeId: quizze._id })
                 .populate('questionTypeId')
                 .populate('quizzeId')
+            console.log(questions)
         }
 
         if (!questions) {
@@ -127,4 +129,33 @@ export const addNewQuestion = async (req, res) => {
             error: error.message,
         })
     }
+}
+
+export const updateManyQuestion = async (req, res) => {
+    try {
+        const { questions } = req.body
+        if (!Array.isArray(questions) || questions.length === 0) {
+            return res.status(400).json({
+                message: 'Questions are required!',
+            })
+        }
+
+        const updatedQuestions = await questionModel.bulkWrite(
+            questions.map((question) => ({
+                updateOne: {
+                    filter: { _id: question._id },
+                    update: {
+                        question: question.question,
+                        questionTypeId: question.questionTypeId,
+                        answer: question.answer,
+                    },
+                },
+            })),
+        )
+
+        res.status(200).json({
+            message: 'Update questions successfully',
+            updatedCount: updatedQuestions.modifiedCount,
+        })
+    } catch (error) {}
 }

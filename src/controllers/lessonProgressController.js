@@ -1,4 +1,4 @@
-import { courseModel } from '~/models/courseModel'
+import { courseEnrollmentModel } from '~/models/courseEnrollmentModel'
 import { lessonModel } from '~/models/lessonModel'
 import { lessonProgressModel } from '~/models/lessonProgressModel'
 import { userModel } from '~/models/userModel'
@@ -7,7 +7,12 @@ export const getLessonProgress = async (req, res) => {
     try {
         const { userId } = req.user
 
-        const courses = await courseModel.find()
+        const courseEnrollments = await courseEnrollmentModel.find({ userId }).populate('courseId')
+        if (!courseEnrollments || courseEnrollments.length === 0) {
+            return res.status(400).json({ message: 'No course enrollments found' })
+        }
+
+        const courses = courseEnrollments.map((enrollment) => enrollment.courseId)
 
         if (!courses || courses.length === 0) {
             return res.status(400).json({ message: 'No courses found' })

@@ -46,9 +46,34 @@ export const getAllPost = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: 'Users',
+                    localField: 'authorId',
+                    foreignField: '_id',
+                    as: 'author',
+                },
+            },
+            {
+                $unwind: { path: '$author', preserveNullAndEmptyArrays: true },
+            },
+            {
                 $sort: { createdAt: -1 },
             },
+            {
+                $project: {
+                    _id: 1,
+                    title: 1,
+                    content: 1,
+                    createdAt: 1,
+                    comments: 1,
+                    likes: 1,
+                    authorName: '$author.fullName',
+                },
+            },
         ])
+
+        console.log('posts:', posts)
+
         return res.status(200).json({ message: 'Get all post successfully', posts })
     } catch (error) {
         console.error('Internal Server Error:', error.message)
@@ -110,8 +135,6 @@ export const updatePost = async (req, res) => {
         return res.status(500).json({ message: 'Internal Server Error' })
     }
 }
-
-// admin có thể xóa các bài viết của user khác
 
 export const deletePost = async (req, res) => {
     try {

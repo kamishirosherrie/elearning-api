@@ -9,7 +9,7 @@ import { sendEmail } from '~/services/mailService'
 import { changePassWordValidation, registerValidation } from '~/validations/inputValidation'
 
 const createAccessToken = (user) => {
-    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    return jwt.sign({ userId: user._id }, env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
 }
 
 const createRefreshToken = (user) => {

@@ -156,7 +156,7 @@ export const getLessonWithUserProgress = async (req, res) => {
             chapters.map(async (chapter) => {
                 const lessons = await lessonModel.find({ chapterId: chapter._id }).sort({ order: 1 }).lean()
 
-                const lessonsWithExtras = await Promise.all(
+                const lessonsWithQuizzes = await Promise.all(
                     lessons.map(async (lesson) => {
                         const [progress, quizze] = await Promise.all([
                             lessonProgressModel.findOne({ lessonId: lesson._id, userId }).lean(),
@@ -174,7 +174,7 @@ export const getLessonWithUserProgress = async (req, res) => {
 
                 return {
                     ...chapter,
-                    lessons: lessonsWithExtras,
+                    lessons: lessonsWithQuizzes,
                 }
             }),
         )

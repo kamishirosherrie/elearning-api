@@ -18,7 +18,7 @@ Instructions:
 Input:
 ${formattedInput}
 
-Return your response in JSON format as shown below:
+Return your response in JSON format as shown below and only VietNamese:
 
 {
   "results": [

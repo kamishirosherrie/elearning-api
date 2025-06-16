@@ -2,6 +2,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import path from 'path'
 
 import { env } from './config/environment'
 import { roleRouter } from './routes/v1/roleRoutes'
@@ -78,6 +79,8 @@ const START_SERVER = () => {
     app.use('/comment', commentRouter)
 
     app.use('/payment', paymentRouter)
+
+    app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')))
 }
 
 ;(async () => {

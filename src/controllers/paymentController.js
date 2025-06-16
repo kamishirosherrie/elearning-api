@@ -6,9 +6,13 @@ import { env } from '~/config/environment'
 
 export const createOrder = async (req, res) => {
     try {
+        const { userId } = req.user
+        if (!userId) {
+            return res.status(400).send('User ID không hợp lệ')
+        }
         const { amount, orderInfo, courseId } = req.body
         const orderId = new mongo.ObjectId().toString()
-        const payment = new paymentModel({ orderId, amount, orderInfo, courseId })
+        const payment = new paymentModel({ orderId, userId, amount, orderInfo, courseId })
         await payment.save()
 
         const paymentUrl = vnpayResponse(orderId, amount, orderInfo)
